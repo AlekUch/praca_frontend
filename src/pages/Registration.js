@@ -9,29 +9,30 @@ import './Registration.module.css';
 import { Link } from "react-router-dom";
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 
 const MySwal = withReactContent(Swal);
+
 function Registration() {
     const [validated, setValidated] = useState(false);
-        const [password, setPassword] = useState("");
+    const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-        const [passwordError, setPasswordError] = useState("");
+    const [passwordError, setPasswordError] = useState("");
     const [passwordMatchError, setPasswordMatchError] = useState("");
     const [responseMessage, setResponseMessage] = useState('');
-
+    const navigate = useNavigate();
 
      const handlePasswordChange = (event) => {
         const value = event.target.value;
         setPassword(value);
 
-        // Walidacja długości hasła
         if (value.length < 8) {
             setPasswordError("Hasło musi mieć co najmniej 8 znaków.");
         } else {
             setPasswordError("");
         }
 
-        // Sprawdzanie, czy hasła są zgodne w czasie rzeczywistym
+
         if (confirmPassword && value !== confirmPassword) {
             setPasswordMatchError("Hasła muszą być zgodne.");
         } else {
@@ -43,7 +44,6 @@ function Registration() {
         const value = event.target.value;
         setConfirmPassword(value);
 
-        // Sprawdzanie, czy hasła są zgodne
         if (value !== password) {
             setPasswordMatchError("Hasła muszą być zgodne.");
         } else {
@@ -74,11 +74,34 @@ function Registration() {
                 });
 
                 const result = await response.json();
+                if (result.status === 200) {
+                    console.log(result.message);
+                    MySwal.fire({
+                        title: 'Sukces!',
+                        text: result.message,
+                        icon: 'success',
+                        confirmButtonText:"Przejdź do logowania"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            navigate('/login'); // Użycie navigate do przekierowania
+                        }
+
+                    });
+                } else {
+                    console.log(result.message);
+                    MySwal.fire({
+                        title: 'Błąd!',
+                        text: result.message,
+                        icon: 'error',
+                        confirmButtonText:"Spróbuj ponownie"                   
+                    });
+                }
                
-            }catch (error){
+            } catch (error) {
+                console.log(error.message);
                 MySwal.fire({
                     title: 'Błąd!',
-                    text: error.responseMessage,
+                    text: 'Nieoczekiwany błąd serwera',
                     icon: 'error',
                     confirmButtonText: 'Spróbuj ponownie'
                 });

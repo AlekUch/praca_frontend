@@ -5,7 +5,7 @@ import RootLayout from './pages/Root';
 
 import MainNavigation from './components/MainNavigation';
 import RegistrationPage from './pages/Registration';
-
+import LoginPage from './pages/Login';
 
 const router = createBrowserRouter([
     {
@@ -17,6 +17,10 @@ const router = createBrowserRouter([
             {
                 path: 'registration',
                 element: <RegistrationPage />,
+            },
+            {
+                path: 'login',
+                element: <LoginPage />,
             },
             //    children: [
             //        {
