@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
 const MySwal = withReactContent(Swal);
 
@@ -39,51 +40,54 @@ function Login() {
             console.log("Formularz nie jest poprawny.");
         } else {
             const formData = new FormData(form);
-            for (let [key, value] of formData.entries()) {
-                console.log(`${key}: ${value}`);
+
+            try {
+                const response = await fetch('https://localhost:44311/agrochem/login', {
+                    method: 'POST',
+                    headers: {
+
+                    },
+                    body: formData,
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    localStorage.setItem('token', result.token);
+                    localStorage.setItem('user', result.user);
+                    const decodedToken = jwtDecode(result.token); // Dekoduj token
+                    const role = decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+                    localStorage.setItem('role', role);
+                    console.log(role);
+                    MySwal.fire({
+                        title: 'Sukces!',
+                        text: "Zalogowano pomyślnie",
+                        icon: 'success',
+                        confirmButtonText: "OK"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "/"; // Użycie navigate do przekierowania
+                        }
+
+                    });
+                } else {
+                    console.log(result.message);
+                    MySwal.fire({
+                        title: 'Błąd!',
+                        text: result.message,
+                        icon: 'error',
+                        confirmButtonText: "Spróbuj ponownie"
+                    });
+                }
+
+            } catch (error) {
+                console.log(error.message);
+                MySwal.fire({
+                    title: 'Błąd!',
+                    text: 'Nieoczekiwany błąd serwera',
+                    icon: 'error',
+                    confirmButtonText: 'Spróbuj ponownie'
+                });
             }
-            //try {
-            //    const response = await fetch('https://localhost:44311/agrochem/login', {
-            //        method: 'POST',
-            //        headers: {
-
-            //        },
-            //        body: formData,
-            //    });
-
-            //    const result = await response.json();
-            //    if (result.status === 200) {
-            //        console.log(result.message);
-            //        MySwal.fire({
-            //            title: 'Sukces!',
-            //            text: result.message,
-            //            icon: 'success',
-            //            confirmButtonText: "Zalogowano pomyślnie"
-            //        }).then((result) => {
-            //            if (result.isConfirmed) {
-            //                navigate('/login'); // Użycie navigate do przekierowania
-            //            }
-
-            //        });
-            //    } else {
-            //        console.log(result.message);
-            //        MySwal.fire({
-            //            title: 'Błąd!',
-            //            text: result.message,
-            //            icon: 'error',
-            //            confirmButtonText: "Spróbuj ponownie"
-            //        });
-            //    }
-
-            //} catch (error) {
-            //    console.log(error.message);
-            //    MySwal.fire({
-            //        title: 'Błąd!',
-            //        text: 'Nieoczekiwany błąd serwera',
-            //        icon: 'error',
-            //        confirmButtonText: 'Spróbuj ponownie'
-            //    });
-            //}
         }
 
         setValidated(true);

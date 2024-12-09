@@ -1,0 +1,81 @@
+
+
+
+.savePlotButton {
+    width: 100%;
+    font-size: 1rem; /* Zwiêkszony rozmiar czcionki */
+    padding: 0.35rem 1rem; /* Wiêkszy odstêp wewnêtrzny (padding) */
+    border-radius: 1.5rem; /* Zaokr¹glenie rogów */
+    background-color: #007bff; /* Kolor t³a */
+    color: white; /* Kolor tekstu */
+     /* Brak obramowania */
+    cursor: pointer; /* Zmieniony kursor */
+    transition: background-color 0.3s ease;
+    font-weight:400;
+    margin-top:5%;
+}
+
+.savePlotButton:hover {
+    background-color: #0056b3; /* Kolor t³a po najechaniu */
+}
+
+.modal {
+    display: flex;
+    justify-content: center; /* Centrowanie poziome */
+    align-items: center;
+    position: fixed;
+    text-align: center;
+}
+.modalFooterButton {
+    width: 50%;
+    margin: auto;
+    border-radius: 1.5rem;
+}
+
+.modalTitle {
+    text-align: center;
+    width: 100%;
+    margin: auto;
+}
+.container {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 10px;
+    padding-right: 10px;
+
+}
+table {
+    border-collapse: separate; /* Aby border-radius dzia³a³ */
+    border-spacing: 0; /* Wy³¹cza odstêpy miêdzy komórkami */
+    border-radius: 10px; /* Okreœl wielkoœæ zaokr¹glenia */
+    overflow: hidden; /* Ukrywa elementy wystaj¹ce poza zaokr¹glenie */
+    font-size:18px;
+}
+thead {
+    --bs-table-bg: #249bc4;
+    --bs-table-color: white;
+    font-size: 22px;
+    font-weight: 100;
+    letter-spacing: 0.01em;
+    font-family: Tahoma;
+    
+}
+th {
+    font-weight: 400;
+}
+tr{
+    max-height:50px;
+}
+
+tbody tr:hover {
+    --bs-table-bg: rgba(131, 207, 245, 0.3); /* Przyk³adowy kolor podœwietlenia (czerwony) */
+    transition: background-color 0.3s ease; /* P³ynne przejœcie */
+    font-weight: 500;
+}
+table-bordered {
+    border: 5px double orange !important;
+}
+thead tr:hover {
+    background-color: transparent; /* Upewnij siê, ¿e nie ma koloru podœwietlenia dla thead */
+}

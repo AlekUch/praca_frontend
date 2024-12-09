@@ -74,7 +74,7 @@ function Registration() {
                 });
 
                 const result = await response.json();
-                if (result.status === 200) {
+                if (response.ok) {
                     console.log(result.message);
                     MySwal.fire({
                         title: 'Sukces!',
@@ -150,7 +150,6 @@ function Registration() {
                         </Form.Label>
                         <Col sm={9}>
                             <Form.Control type="email" placeholder="Email" required name="email"/>
-                            <Form.Control.Feedback></Form.Control.Feedback>
                             <Form.Control.Feedback type="invalid">
                                 Niepoprawny email.
                             </Form.Control.Feedback>
