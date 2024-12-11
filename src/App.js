@@ -9,7 +9,7 @@ import PlotsPage, { loader as loaderPlots, action as actionPlot } from './pages/
 import CultivationsPage, { loader as loaderCultivation, action as actionCultivation } from './pages/Cultivations';
 import PlantPage, { loader as loaderPlants, action as actionPlants } from './pages/Plant';
 import ChemicalAgentPage, { loader as loaderChemAgent, action as actionChemAgent } from './pages/ChemicalAgents';
-import ChemAgentDetailsPage, {loader as loaderChemDetails } from './pages/ChemicalAgentDetails';
+import ChemAgentDetailsPage, {loader as loaderChemDetails, action as actionChemDetails } from './pages/ChemicalAgentDetails';
 
 const router = createBrowserRouter([
     {
@@ -48,14 +48,14 @@ const router = createBrowserRouter([
                 path: 'chemicalagents',
                 element: localStorage.getItem('role') === 'Admin' ? <ChemicalAgentPage /> : <LoginPage />,
                 loader: loaderChemAgent,
-                action: actionChemAgent,
-                
+                action: actionChemAgent,               
             },
             {               
                 path: "chemicalagents/:id",
                 element: <ChemAgentDetailsPage />,
-                loader: loaderChemDetails
-
+                loader: loaderChemDetails,
+                action: actionChemDetails,
+               
             },
             //    children: [
             //        {
