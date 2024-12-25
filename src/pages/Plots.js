@@ -11,12 +11,7 @@ import { Link } from "react-router-dom";
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
 import { useNavigate, useLoaderData, json, useSubmit, useActionData, useRevalidator } from 'react-router-dom';
-import Table from 'react-bootstrap/Table';
-import { OverlayTrigger, Tooltip } from 'react-bootstrap';
-
-const renderTooltip = (message) => (
-    <Tooltip id="button-tooltip">{message}</Tooltip>
-);
+import UniversalTable from '../components/Table';
 
 const MySwal = withReactContent(Swal);
 
@@ -48,22 +43,41 @@ function Plots() {
                 title: 'Błąd',
                 text: actionData.message,
             });
-        }      
+        }
     }, [actionData]
     );
- 
-    const handleShow = () => setShow(true);
-
     if (data.isError) {
         return <p>Błąd: {data.message}</p>;
     }
-    const plots = data;
 
+    const plots = data;
+    const columns = [
+        { field: 'plotNumber', headerName: 'Numer działki',  flex: 1, headerClassName: 'super-app-theme--header' },
+        { field: 'area', headerName: 'Powierzchnia [ha]',  flex: 1, },
+        { field: 'location', headerName: 'Miejscowość',  flex: 1, },
+        { field: 'district', headerName: 'Gmina',  flex: 1, },
+        { field: 'voivodeship', headerName: 'Województwo',  flex: 1 },
+        
+    ];
+    
+    const rows = plots.map((item) => ({
+        id: item.plotId,
+        plotNumber: item.plotNumber,
+        area: `${item.area} ha`,
+        location: item.address.location,
+        district: item.address.district,
+        voivodeship: item.address.voivodeship,
+        originalData: item,
+    }));
+
+   
+ 
+    const handleShow = () => setShow(true);
+  
     const handleSubmit = (event) => {
         event.preventDefault();
         const form = event.currentTarget;
        
-        // Przeprowadzenie walidacji formularza
         if (form.checkValidity() === false) {         
             event.stopPropagation();
             setValidated(true);
@@ -72,12 +86,10 @@ function Plots() {
             console.log(editMode);
 
             if (editMode) {
-                // Prześlij żądanie PUT
-                
-                formData.append('id', selectedPlot.plotId); // Ustaw identyfikator użytkownika
+
+                formData.append('id', selectedPlot.plotId); 
                 submit(formData, { method: 'PUT' });
             } else {
-                // Prześlij żądanie POST
                 submit(formData, { method: 'POST' });
             }
             handleClose();
@@ -127,182 +139,125 @@ function Plots() {
         });
     };
 
-    return (
-        <>
-            <div style={{ width: '100%' }} className="p-5 text-center bg-body-tertiary ">
-                <p className="display-4">Moje działki</p>
+   
+        return (
+            <>
+                <div style={{ width: '100%' }} className="p-5 text-center bg-body-tertiary ">
+                    <p className="display-4">Moje działki</p>
                     <div class="row">
-                    <div className="col d-flex justify-content-end">
-                    <Button variant="danger" size="lg" onClick={handleShow}>Dodaj nową działkę</Button>
-                </div>
-                </div>
-                <div className={classes.container}>
-                    <Table responsive >
-                        <thead >
-                            <tr >
-                                <th>Numer działki</th>
-                                <th>Powierzchnia [ha]</th>
-                                <th>Miejscowość</th>
-                                <th>Gmina</th>
-                                <th>Województwo</th>
-                                <th></th>
-
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {plots.map(plot => (
-                                <tr   key={plot.plotId}>
-                                    <td>{plot.plotNumber}</td>
-                                    <td>{plot.area} ha</td>
-                                    <td>{plot.address.location} </td>
-                                    <td>{plot.address.district}</td>
-                                    <td>{plot.address.voivodeship}</td>
-                                    {!plot.archival ? (
-                                        <>
-                                        <td>
-                                        <OverlayTrigger
-                                            placement="top"
-                                            overlay={renderTooltip('Edytuj')}
-                                        >
-                                            <i
-                                                className="bi bi-pencil-square"
-                                                style={{ cursor: 'pointer', marginRight: '10px' }}
-                                                onClick={() => handleEdit(plot)}
-                                            />
-                                        </OverlayTrigger>
-
-             
-                                    <OverlayTrigger
-                                        placement="top"
-                                        overlay={renderTooltip('Archiwizuj')}
-                                    >
-                                        <i
-                                            className="bi bi-archive"
-                                            style={{ cursor: 'pointer', color: 'red' }}
-                                            onClick={() => handleArchive(plot, true)}
+                        <div className="col d-flex justify-content-end">
+                            <Button variant="danger" size="lg" onClick={handleShow}>Dodaj nową działkę</Button>
+                        </div>
+                    </div>
+                    <div className={classes.container}>
+                        <UniversalTable columns={columns}
+                            rows={rows}
+                            onEdit={handleEdit} // Funkcja obsługująca edycję
+                            onArchive={handleArchive} // Funkcja obsługująca archiwizację
+                            archivalField="archival" // Nazwa pola archiwizacji (dynamiczne)
+                        />
+                     
+                    </div>
+                    <Modal show={show} onHide={handleClose} size="md" className={classes.modal} >
+                        <Modal.Header closeButton >
+                            <Modal.Title className={classes.modalTitle}>
+                                {editMode ? 'Edytuj działkę' : 'Utwórz nową działkę'}
+                            </Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <Form noValidate validated={validated} method={editMode ? 'PUT' : 'POST'} onSubmit={handleSubmit}>
+                                <Form.Group as={Row} className="mb-4" controlId="PlotNumber">
+                                    <Form.Label column sm={3}>
+                                        Numer działki
+                                    </Form.Label>
+                                    <Col sm={9}>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Numer"
+                                            required name="PlotNumber"
+                                            defaultValue={editMode && selectedPlot ? selectedPlot.plotNumber : ''}
                                         />
-                                                </OverlayTrigger>
-                                            </td>
-                                    </>
-                                    ) : (
-                                            <><td>
-                                                <OverlayTrigger
-                                                    placement="top"
-                                                    overlay={renderTooltip('Cofnij archiwizację')}
-                                                >
-                                                    <i
-                                                        className={ "bi bi-arrow-counterclockwise"}
-                                                        style={{ cursor: 'pointer', color:  'green' }}
-                                                        onClick={() => handleArchive(plot,false)}
-                                                    />
-                                                </OverlayTrigger>
-                                            </td></>
-                                    )}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
+                                        <Form.Control.Feedback></Form.Control.Feedback>
+
+                                    </Col>
+                                </Form.Group>
+                                <Form.Group as={Row} className="mb-4" controlId="Area">
+                                    <Form.Label column sm={3}>
+                                        Powierzchnia [ha]
+                                    </Form.Label>
+                                    <Col sm={9}>
+                                        <Form.Control type="number"
+                                            placeholder="Powierzchnia 0000,00"
+                                            required name="Area"
+                                            step="0.10"
+                                            min="0.10"
+                                            max="9999.99"
+                                            defaultValue={editMode && selectedPlot ? selectedPlot.area : ''}
+                                        />
+                                        <Form.Control.Feedback></Form.Control.Feedback>
+
+                                    </Col>
+                                </Form.Group>
+                                <Form.Group as={Row} className="mb-4" controlId="location">
+                                    <Form.Label column sm={3}>
+                                        Miejscowość
+                                    </Form.Label>
+                                    <Col sm={9}>
+                                        <Form.Control type="text"
+                                            placeholder="Miejscowść"
+                                            required name="location"
+                                            defaultValue={editMode && selectedPlot ? selectedPlot.address.location : ''}
+                                        />
+                                        <Form.Control.Feedback></Form.Control.Feedback>
+
+                                    </Col>
+                                </Form.Group>
+
+                                <Form.Group as={Row} className="mb-4" controlId="district">
+                                    <Form.Label column sm={3}>
+                                        Gmina
+                                    </Form.Label>
+                                    <Col sm={9}>
+                                        <Form.Control type="text"
+                                            placeholder="Gmina"
+                                            required name="district"
+                                            defaultValue={editMode && selectedPlot ? selectedPlot.address.district : ''}
+                                        />
+                                        <Form.Control.Feedback></Form.Control.Feedback>
+
+                                    </Col>
+                                </Form.Group>
+
+                                <Form.Group as={Row} className="mb-3" controlId="voivodeship">
+                                    <Form.Label column sm={3}>
+                                        Województwo
+                                    </Form.Label>
+                                    <Col sm={9}>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Województwo"
+                                            required name="voivodeship"
+                                            defaultValue={editMode && selectedPlot ? selectedPlot.address.voivodeship : ''}
+                                        />
+                                        <Form.Control.Feedback></Form.Control.Feedback>
+
+                                    </Col>
+                                </Form.Group>
+                                <Form.Group as={Row} className="mb-3" >
+                                    <Button className={classes.savePlotButton} type="submit">ZAPISZ</Button>
+                                    <Button variant="secondary" onClick={handleClose} className={classes.modalFooterButton}>
+                                        Anuluj
+                                    </Button>
+                                </Form.Group>
+                            </Form>
+
+                        </Modal.Body>
+
+                    </Modal>
                 </div>
-                <Modal show={show} onHide={handleClose} size="md" className={classes.modal} >
-                    <Modal.Header closeButton >
-                        <Modal.Title className={classes.modalTitle}>
-                            {editMode ? 'Edytuj działkę' : 'Utwórz nową działkę'}
-                        </Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <Form noValidate validated={validated} method={editMode ? 'PUT' : 'POST'} onSubmit={handleSubmit}>
-                            <Form.Group as={Row} className="mb-4" controlId="PlotNumber">
-                                <Form.Label column sm={3}>
-                                    Numer działki
-                                </Form.Label>
-                                <Col sm={9}>
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Numer"
-                                        required name="PlotNumber"
-                                        defaultValue={editMode && selectedPlot ? selectedPlot.plotNumber : ''}
-                                    />
-                                    <Form.Control.Feedback></Form.Control.Feedback>
-
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-4" controlId="Area">
-                                <Form.Label column sm={3}>
-                                    Powierzchnia [ha]
-                                </Form.Label>
-                                <Col sm={9}>
-                                    <Form.Control type="number"
-                                        placeholder="Powierzchnia 0000,00"
-                                        required name="Area"
-                                        step="0.10" 
-                                        min="0.10"
-                                        max="9999.99"
-                                        defaultValue={editMode && selectedPlot ? selectedPlot.area : ''}
-                                    />
-                                    <Form.Control.Feedback></Form.Control.Feedback>
-
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-4" controlId="location">
-                                <Form.Label column sm={3}>
-                                    Miejscowość
-                                </Form.Label>
-                                <Col sm={9}>
-                                    <Form.Control type="text"
-                                        placeholder="Miejscowść"
-                                        required name="location"
-                                        defaultValue={editMode && selectedPlot ? selectedPlot.address.location : ''}
-                                    />
-                                    <Form.Control.Feedback></Form.Control.Feedback>
-
-                                </Col>
-                            </Form.Group>
-
-                            <Form.Group as={Row} className="mb-4" controlId="district">
-                                <Form.Label column sm={3}>
-                                    Gmina
-                                </Form.Label>
-                                <Col sm={9}>
-                                    <Form.Control type="text"
-                                        placeholder="Gmina"
-                                        required name="district"
-                                        defaultValue={editMode && selectedPlot ? selectedPlot.address.district : ''}
-                                    />
-                                    <Form.Control.Feedback></Form.Control.Feedback>
-
-                                </Col>
-                            </Form.Group>
-
-                            <Form.Group as={Row} className="mb-3" controlId="voivodeship">
-                                <Form.Label column sm={3}>
-                                    Województwo
-                                </Form.Label>
-                                <Col sm={9}>
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Województwo"
-                                        required name="voivodeship"
-                                        defaultValue={editMode && selectedPlot ? selectedPlot.address.voivodeship : ''}
-                                    />
-                                    <Form.Control.Feedback></Form.Control.Feedback>
-
-                                </Col>
-                            </Form.Group>
-                            <Form.Group as={Row} className="mb-3" >
-                            <Button className={classes.savePlotButton} type="submit">ZAPISZ</Button>
-                            <Button variant="secondary" onClick={handleClose} className={classes.modalFooterButton}>
-                                Anuluj
-                                </Button>
-                            </Form.Group>
-                        </Form>
-                       
-                    </Modal.Body>
-
-                </Modal>
-            </div>
-        </>
-    )
-
+            </>
+        )
+    
 
 }
 

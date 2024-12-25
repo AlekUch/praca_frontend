@@ -10,10 +10,9 @@ import { useNavigate, useLoaderData, json, useSubmit, useActionData, useRevalida
 import Table from 'react-bootstrap/Table';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { format } from 'date-fns';
+import UniversalTable from '../components/Table';
 
-const renderTooltip = (message) => (
-    <Tooltip id="button-tooltip">{message}</Tooltip>
-);
+
 
 const MySwal = withReactContent(Swal);
 
@@ -25,7 +24,6 @@ function Cultivations() {
     const [selectedPlot, setSelectedPlot] = useState(null);
     const [selectedCultivation, setSelectedCultivation] = useState(null);
     const data = useLoaderData();
-
     const { cultivations, plants } = data;
     const submit = useSubmit();
     const actionData = useActionData();
@@ -50,6 +48,24 @@ function Cultivations() {
             setFilteredPlants(filtered);
         }
     }, [searchTerm, plants]);
+
+    const columns = [
+        { field: 'plotNumber', headerName: 'Numer działki', flex: 1, headerClassName: 'super-app-theme--header' },
+        { field: 'plantName', headerName: 'Uprawiana roślina', flex: 1, },
+        { field: 'area', headerName: 'Powierzchnia', flex: 1, },
+        { field: 'sowingDate', headerName: 'Data siewu', flex: 1, },
+        
+
+    ];
+
+    const rows = cultivations.map((item) => ({
+        id: item.cultivationId,
+        plotNumber: item.plotNumber,
+        plantName: item.plantName,
+        area: `${item.area} ha`,       
+        sowingDate: new Date(item.sowingDate).toLocaleDateString("pl-PL"),
+        originalData: item,
+    }));
 
     // Obsługa pola wyszukiwania
     const handleSearchChange = (e) => {
@@ -262,81 +278,12 @@ function Cultivations() {
                     </div>
                 </div>
                 <div className={classes.container}>
-                    <Table responsive >
-                        <thead >
-                            <tr >
-                                <th>Numer działki</th>
-                                <th>Uprawiana roślina</th>
-                                <th>Powierzchnia [ha]</th>
-                                <th>Data siewu</th>
-                                
-                                <th></th>
-
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {cultivations.map(cultivation => (
-                                <tr key={cultivation.cultivationId}>
-                                    <td>{cultivation.plotNumber}</td>
-                                    <td>{cultivation.plantName}</td>
-                                    <td>{cultivation.area} ha</td>
-                                    <td>{new Date(cultivation.sowingDate).toLocaleDateString("pl-PL")} </td>                                   
-                                    
-                                        <>
-                                            <td>
-                                               
-                                            {!cultivation.archival ? (
-                                                <>
-                                                    
-                                                        <OverlayTrigger
-                                                            placement="top"
-                                                            overlay={renderTooltip('Edytuj')}
-                                                        >
-                                                            <i
-                                                                className="bi bi-pencil-square"
-                                                                style={{ cursor: 'pointer', marginRight: '10px' }}
-                                                                onClick={() => handleEdit(cultivation)}
-                                                            />
-                                                        </OverlayTrigger>
-
-
-                                                        <OverlayTrigger
-                                                            placement="top"
-                                                            overlay={renderTooltip('Zakończ uprawę')}
-                                                        >
-                                                            <i
-                                                                className="bi bi-archive"
-                                                                style={{ cursor: 'pointer', color: 'red' }}
-                                                                onClick={() => handleArchive(cultivation, true)}
-                                                            />
-                                                        </OverlayTrigger>
-
-                                                        <OverlayTrigger
-                                                            placement="top"
-                                                            overlay={renderTooltip('Usuń')}
-                                                        >
-                                                            <i
-                                                                className="bi bi-trash"
-                                                                style={{ cursor: 'pointer', color: 'red' }}
-                                                                onClick={() => handleDelete(cultivation)}
-                                                            />
-                                                        </OverlayTrigger>
-                                                    
-                                                </>
-                                            ) : (
-                                                    <>
-                                                       
-                                                    </>
-                                            )}
-
-                                                
-                                            </td>
-                                        </>
-                                    
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
+                    <UniversalTable columns={columns}
+                        rows={rows}
+                        onEdit={handleEdit} // Funkcja obsługująca edycję
+                        onArchive={handleArchive} // Funkcja obsługująca archiwizację
+                        archivalField="archival" // Nazwa pola archiwizacji (dynamiczne)
+                    />
                 </div>
                 <Modal show={show} onHide={handleClose} size="md" className={classes.modal} >
                     <Modal.Header closeButton >

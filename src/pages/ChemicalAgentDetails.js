@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLoaderData, json, useSubmit, useActionData, useRevalidator, useParams } from 'react-router-dom';
 import { useLocation } from "react-router-dom";
 import { useRouteLoaderData } from "react-router";
+import UniversalTable from '../components/Table';
 const renderTooltip = (message) => (
     <Tooltip id="button-tooltip">{message}</Tooltip>
 );
@@ -55,6 +56,28 @@ const DetailsPage = () => {
     if (isError) {
         return <p>Błąd: {message}</p>;
     }
+
+    const columns = [
+        { field: 'plantName', headerName: 'Roślina', minWidth: 200, headerAlign: 'center' },
+        { field: 'minDose', headerName: 'Dawka min[l]', minWidth: 120, headerAlign: 'center' },
+        { field: 'maxDose', headerName: 'Dawka max[l]', minWidth: 120, headerAlign: 'center' },
+        { field: "minWater", headerName: "Woda min[l]", minWidth: 120, headerAlign: 'center' },
+        { field: "maxWater", headerName: "Woda max[l]", minWidth: 120, headerAlign: 'center' },
+        { field: "minDays", headerName: "Ponownie min[dni]", minWidth: 140, headerAlign: 'center' },
+        { field: "maxDays", headerName: "Ponownie max[l]", minWidth: 140, headerAlign: 'center' },
+    ];
+
+    const rows = chemicalUses.map((item) => ({
+        id:item.chemUseId,
+        plantName: item.plantName,
+        minDose: item.minDose,
+        maxDose: item.maxDose,
+        minWater: item.minWater,
+        maxWater: item.maxWater,
+        minDays: item.minDays,
+        maxDays: item.maxDays,
+        originalData: item,        
+    }));
     const handleShow = () => setShow(true);
 
     const handleClose = () => {
@@ -139,10 +162,39 @@ const DetailsPage = () => {
         setShow(true);
     };
 
+    const handleArchive = (chemUse, isArchiving) => {
+        Swal.fire({
+            title: `Czy na pewno chcesz ${isArchiving ? 'zarchiwizować informację' : 'cofnąć archiwizację'}?`,
+            text: `${isArchiving ? 'Po archiwizacji ta informacja będzie dostępna jedynie do odczytu!' : ''}`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: `${isArchiving ? 'Zarchiwizuj!' : 'Cofnij archiwizację'}`,
+            cancelButtonText: 'Anuluj'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+
+                const response = await archiveChemAgnet(chemUse.chemUseId, isArchiving);
+
+                if (response.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Sukces',
+                        text: response.message,
+                    }).then(() => {
+                        revalidate();
+                    });
+                } else {
+                    Swal.fire('Błąd!', response.message, 'error');
+                }
+            }
+        });
+    };
 
     return (
        <>       
-        <div id="team" class="pb-5 ">
+        <div  class="pb-5 ">
                 <div className={classes.container}>                
                 <div class="row">
                     <div class="col-12 ">
@@ -165,7 +217,9 @@ const DetailsPage = () => {
 
                                             <Card.Body style={{ marginTop: '60px' }}>
                                                 <Card.Title className={classes.cardTitle}>{name}</Card.Title>
-                                                <Card.Text className={classes.cardText}>{description}</Card.Text>
+                                                <Card.Text className={classes.cardText}>
+                                                    <p style={{ color: '#6c757d', fontSize:'14px', textAlign:'center' } }>[{type}]</p>
+                                                    {description}</Card.Text>
                                                 <Button variant="danger" size="md" style={{ float: 'right', marginBottom: '0px' }} onClick={handleShow} >Dodaj szczegóły</Button>
                                             </Card.Body>
                                         </Card>
@@ -178,58 +232,12 @@ const DetailsPage = () => {
                     </div>
                     <div className="row text-center mt-5">
                         <p className="display-6 mb-5">Szczegółowe informacje </p>
-                        <Table responsive >
-                            <thead >
-                                <tr >
-                                    <th>Roślina</th>
-                                    <th>Dawka min [l]</th>
-                                    <th>Dawka max [l]</th>
-                                    <th>Woda min [l]</th>
-                                    <th>Woda max [l]</th>
-                                    <th>Ponowny zabieg min [dni]</th>
-                                    <th>Ponowny zabieg max [dni]</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {chemicalUses && chemicalUses.map(chemicalUse => (
-                                    <tr key={chemicalUse.chemUseId}>
-                                        <td>{chemicalUse.plantName}</td>
-                                        <td>{chemicalUse.minDose}</td>
-                                        <td>{chemicalUse.maxDose}</td>
-                                        <td>{chemicalUse.minWater}</td>
-                                        <td>{chemicalUse.maxWater}</td>
-                                        <td>{chemicalUse.minDays}</td>
-                                        <td>{chemicalUse.maxDays}</td>
-                                        <td>
-                                            <OverlayTrigger
-                                                placement="top"
-                                                overlay={renderTooltip('Edytuj')}
-                                            >
-                                                <i
-                                                    className="bi bi-pencil-square"
-                                                    style={{ cursor: 'pointer', marginRight: '10px' }}
-                                                    onClick={() => handleEdit(chemicalUse)}
-                                                />
-                                            </OverlayTrigger>
-
-
-                                            <OverlayTrigger
-                                                placement="top"
-                                                overlay={renderTooltip('Usuń')}
-                                            >
-                                                <i
-                                                    className="bi bi-archive"
-                                                    style={{ cursor: 'pointer', color: 'red' }}
-                                                   
-                                                />
-                                            </OverlayTrigger>
-                                              
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </Table>
+                        <UniversalTable columns={columns}
+                            rows={rows}
+                            onEdit={handleEdit} // Funkcja obsługująca edycję
+                            onArchive={handleArchive} // Funkcja obsługująca archiwizację
+                            archivalField="archival" // Nazwa pola archiwizacji (dynamiczne)
+                        />
                     </div>
                 </div>
             </div>
@@ -427,7 +435,7 @@ export async function loader({ params }) {
             chemicaluseResponse.json(),
             detailsResponse.json()
         ]);
-        console.log(details);
+        console.log(chemicalUses);
         // Zwracanie danych do komponentu
         return { plants, chemicalUses, isError: false, message: "", name: details.name, type: details.type, description: details.description };
 
@@ -474,3 +482,28 @@ export async function action({ request, params }) {
 
     return json({ status: 'success', message: result.message }, { status: 200 });
 }
+export async function archiveChemAgnet(chemAgenId, isArchiving) {
+    const token = localStorage.getItem("token");
+    const url = `https://localhost:44311/agrochem/chemicaluse/archive/${chemAgenId}?archive=${isArchiving}`;
+    console.log(isArchiving);
+    try {
+        const response = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            return { status: 'success', message: result.message };
+        } else {
+            const errorData = await response.json();
+            return { status: 'error', message: errorData.message || 'Wystąpił błąd podczas archiwizacji.' };
+        }
+    } catch (error) {
+        return { status: 'error', message: 'Nie udało się przeprowadzić operacji dla tej informacji.' };
+    }
+}
+///respons ok, er

@@ -10,6 +10,7 @@ import CultivationsPage, { loader as loaderCultivation, action as actionCultivat
 import PlantPage, { loader as loaderPlants, action as actionPlants } from './pages/Plant';
 import ChemicalAgentPage, { loader as loaderChemAgent, action as actionChemAgent } from './pages/ChemicalAgents';
 import ChemAgentDetailsPage, {loader as loaderChemDetails, action as actionChemDetails } from './pages/ChemicalAgentDetails';
+import DiseasePage, { loader as loaderDiseases, action as actionDiseases } from './pages/Disease';
 
 const router = createBrowserRouter([
     {
@@ -56,6 +57,13 @@ const router = createBrowserRouter([
                 loader: loaderChemDetails,
                 action: actionChemDetails,
                
+            },
+            {
+                path: "diseases",
+                element: <DiseasePage />,
+               /* loader: loaderDiseases,*/
+                action: actionDiseases,
+
             },
             //    children: [
             //        {

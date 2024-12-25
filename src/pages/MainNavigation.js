@@ -54,7 +54,8 @@ function MainNavigation() {
                                 <>
                                     {role === 'Admin' ? (
                                         <>
-                                        <Nav.Link style={{ float: 'left' }} href="/plants">Rośliny</Nav.Link>
+                                            <Nav.Link style={{ float: 'left' }} href="/plants">Rośliny</Nav.Link>
+                                            <Nav.Link style={{ float: 'left' }} href="/diseases">Choroby roślin</Nav.Link>
                                             <Nav.Link style={{ float: 'left' }} href="/chemicalagents">Środki chemiczne</Nav.Link>
                                         </>
                                     ) :

@@ -11,3 +11,49 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+.MuiDataGrid-root {
+    border: none !important;
+    border-radius: 10px !important;
+    font-size: 16px !important;
+    font-family: Tahoma, sans-serif !important;
+}
+
+    .MuiDataGrid-root .MuiDataGrid-columnHeaders {
+        background-color: #249bc4 !important;
+        color: white !important;
+        font-size: 18px !important;
+        font-weight: bold !important;
+        text-align: center;
+    }
+.MuiDataGrid-container--top [role=row] {
+    background-color: #249bc4 !important;
+    text-align: center;
+}
+.MuiDataGrid-columnHeaderTitle {
+text-align: center;
+width: 100% 
+}
+
+,
+.MuiDataGrid-row {
+    font-size: 14px !important;
+    font-family: Arial, sans-serif !important;
+}
+
+    .MuiDataGrid-row:hover {
+        background-color: rgba(131, 207, 245, 0.3) !important;
+        transition: background-color 0.3s ease !important;
+    }
+
+.MuiDataGrid-cell {
+    border-bottom: none !important;
+    text-align: center !important;
+}
+.cell-wrapper {
+    white-space: normal;
+    word-wrap: break-word;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+}

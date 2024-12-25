@@ -5,18 +5,14 @@ import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
-import Card from 'react-bootstrap/Card';
 import Modal from 'react-bootstrap/Modal';
-import { Link } from "react-router-dom";
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
 import { useNavigate, useLoaderData, json, useSubmit, useActionData, useRevalidator } from 'react-router-dom';
-import Table from 'react-bootstrap/Table';
-import { OverlayTrigger, Tooltip } from 'react-bootstrap';
+import UniversalTable from '../components/Table';
+import { Visibility } from "@mui/icons-material";
+import { IconButton } from "@mui/material";
 
-const renderTooltip = (message) => (
-    <Tooltip id="button-tooltip">{message}</Tooltip>
-);
 
 const MySwal = withReactContent(Swal);
 
@@ -32,6 +28,7 @@ function Plants() {
     const { revalidate } = useRevalidator();
     const navigate = useNavigate();
     const [expandedRows, setExpandedRows] = useState({});
+    const chemAgents = data;
     useEffect(() => {
         if (!actionData)
             return;
@@ -54,19 +51,35 @@ function Plants() {
     }, [actionData]
     );
 
+    const columns = [
+        { field: 'name', headerName: 'Nazwa', minWidth: 180, headerAlign: 'center' },
+        { field: 'type', headerName: 'Typ', minWidth: 160, headerAlign: 'center' },
+        { field: 'description', headerName: 'Opis', minWidth: 500, headerAlign: 'center' },
+        { field: "details", headerName: "Szczegóły", minWidth: 100, headerAlign: 'center' },
 
-    const toggleExpand = (rowId) => {
-        setExpandedRows((prevState) => ({
-            ...prevState,
-            [rowId]: !prevState[rowId],
-        }));
-    };
+    ];
+
+    const rows = chemAgents.map((item) => ({
+        id: item.chemAgentId,
+        name: item.name,
+        type: item.type,
+        description: item.description,
+        originalData: item,
+        details: (
+            <IconButton
+                onClick={() => navigate(`/chemicalagents/${item.chemAgentId}`)} // Funkcja do kliknięcia
+                color="primary"
+            >
+                <Visibility />
+            </IconButton>)
+    }));
+   
     const handleShow = () => setShow(true);
 
     if (data.isError) {
         return <p>Błąd: {data.message}</p>;
     }
-    const chemAgents = data;
+  
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -127,20 +140,17 @@ function Plants() {
                         title: 'Sukces',
                         text: response.message,
                     }).then(() => {
-                        revalidate();
+                        window.location.reload(true);
                     });
+                   
                 } else {
                     Swal.fire('Błąd!', response.message, 'error');
                 }
+
             }
         });
     };
-    const handleDetailsClick = (chemAgent) => {
-        // Przekierowanie na stronę szczegółów z danymi
-        console.log(chemAgent.chemAgentId);
-        console.log(chemAgent);
-        navigate(`/chemicalagents/${chemAgent.chemAgentId}`, { state: chemAgent });
-    };
+ 
 
     return (
         <>
@@ -152,99 +162,12 @@ function Plants() {
                     </div>
                 </div>
                 <div className={classes.container}>
-                    <Table responsive >
-                        <thead >
-                            <tr >
-                                <th>#</th>
-                                <th>Nazwa</th>
-                                <th>Typ</th>
-                                <th>Opis</th>
-                                <th></th>
-
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {chemAgents.map(chemAgent => (
-                                <tr key={chemAgent.chemAgentId}>
-                                    <td>{chemAgent.chemAgentId}</td>
-                                    <td>{chemAgent.name}</td>  
-                                    <td>{chemAgent.type}</td> 
-                                    <td>
-                                    {expandedRows[chemAgent.chemAgentId]
-                                        ? chemAgent.description // Wyświetl cały opis
-                                        : `${chemAgent.description.slice(0, 50)}...`} {/* Skrócony opis */}
-                                    <button
-                                        onClick={() => toggleExpand(chemAgent.chemAgentId)}
-                                        style={{
-                                            marginLeft: "10px",
-                                            cursor: "pointer",
-                                            background: "none",
-                                            border: "none",
-                                            color: "blue",
-                                            textDecoration: "underline",
-                                        }}
-                                    >
-                                        {expandedRows[chemAgent.chemAgentId] ? "Zwiń" : "Rozwiń"}
-                                    </button>
-                                    </td>
-                                    <td>
-                                    {chemAgent.archival === false ? (
-                                        <>
-                                          
-                                                <OverlayTrigger
-                                                    placement="top"
-                                                    overlay={renderTooltip('Edytuj')}
-                                                >
-                                                    <i
-                                                        className="bi bi-pencil-square"
-                                                        style={{ cursor: 'pointer', marginRight: '10px' }}
-                                                        onClick={() => handleEdit(chemAgent)}
-                                                    />
-                                                </OverlayTrigger>
-
-
-                                                <OverlayTrigger
-                                                    placement="top"
-                                                    overlay={renderTooltip('Archiwizuj')}
-                                                >
-                                                    <i
-                                                        className="bi bi-archive"
-                                                        style={{ cursor: 'pointer', color: 'red' }}
-                                                        onClick={() => handleArchive(chemAgent, true)}
-                                                    />
-                                                </OverlayTrigger>
-                                           
-                                        </>
-                                    ) : (
-                                            <>
-                                               
-                                            <OverlayTrigger
-                                                placement="top"
-                                                overlay={renderTooltip('Cofnij archiwizację')}
-                                            >
-                                                <i
-                                                    className={"bi bi-arrow-counterclockwise"}
-                                                    style={{ cursor: 'pointer', color: 'green' }}
-                                                    onClick={() => handleArchive(chemAgent, false)}
-                                                />
-                                            </OverlayTrigger>
-                                        </>
-                                        )}
-                                        <OverlayTrigger
-                                            placement="top"
-                                            overlay={renderTooltip('Szczegóły')}
-                                        >
-                                            <i
-                                                className={"bi bi-three-dots"}
-                                                style={{ cursor: 'pointer', color: 'green' }}
-                                                onClick={() => handleDetailsClick(chemAgent)}
-                                            />
-                                        </OverlayTrigger>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
+                    <UniversalTable columns={columns}
+                        rows={rows}
+                        onEdit={handleEdit} // Funkcja obsługująca edycję
+                        onArchive={handleArchive} // Funkcja obsługująca archiwizację
+                        archivalField="archival" // Nazwa pola archiwizacji (dynamiczne)
+                    />
                 </div>
                 <Modal show={show} onHide={handleClose} size="md" className={classes.modal} >
                     <Modal.Header closeButton >
