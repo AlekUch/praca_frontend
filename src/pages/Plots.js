@@ -25,6 +25,7 @@ function Plots() {
     const submit = useSubmit();
     const actionData = useActionData();
     const { revalidate } = useRevalidator();
+    const [rows, setRows] = useState([]);
     useEffect(() => {
         if (!actionData)
             return;
@@ -46,11 +47,27 @@ function Plots() {
         }
     }, [actionData]
     );
+    useEffect(() => {
+        if (data && Array.isArray(data)) {
+            console.log("Data:", data);
+            const mappedRows = data.map((item) => ({
+                id: item.plotId,
+                plotNumber: item.plotNumber,
+                area: `${item.area} ha`,
+                location: item.address.location,
+                district: item.address.district,
+                voivodeship: item.address.voivodeship,
+                originalData: item,
+            }));
+
+            setRows(mappedRows); // Ustawiamy dane w stanie
+
+        }
+    }, [data]);
     if (data.isError) {
         return <p>Błąd: {data.message}</p>;
     }
 
-    const plots = data;
     const columns = [
         { field: 'plotNumber', headerName: 'Numer działki',  flex: 1, headerClassName: 'super-app-theme--header' },
         { field: 'area', headerName: 'Powierzchnia [ha]',  flex: 1, },
@@ -60,15 +77,7 @@ function Plots() {
         
     ];
     
-    const rows = plots.map((item) => ({
-        id: item.plotId,
-        plotNumber: item.plotNumber,
-        area: `${item.area} ha`,
-        location: item.address.location,
-        district: item.address.district,
-        voivodeship: item.address.voivodeship,
-        originalData: item,
-    }));
+    
 
    
  
@@ -150,7 +159,9 @@ function Plots() {
                         </div>
                     </div>
                     <div className={classes.container}>
-                        <UniversalTable columns={columns}
+                        <UniversalTable
+                            key={JSON.stringify(rows)}
+                            columns={columns}
                             rows={rows}
                             onEdit={handleEdit} // Funkcja obsługująca edycję
                             onArchive={handleArchive} // Funkcja obsługująca archiwizację

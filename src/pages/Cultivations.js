@@ -24,7 +24,7 @@ function Cultivations() {
     const [selectedPlot, setSelectedPlot] = useState(null);
     const [selectedCultivation, setSelectedCultivation] = useState(null);
     const data = useLoaderData();
-    const { cultivations, plants } = data;
+    const [plants, setPlants] = useState([]);
     const submit = useSubmit();
     const actionData = useActionData();
     const { revalidate } = useRevalidator();
@@ -36,6 +36,7 @@ function Cultivations() {
     const [filteredPlants, setFilteredPlants] = useState(plants);
     const [selectedPlant, setSelectedPlant] = useState(null);
     const [showDropdown, setShowDropdown] = useState(false);
+    const [rows, setRows] = useState([]);
 
     // Filtrowanie produktów
     useEffect(() => {
@@ -49,6 +50,50 @@ function Cultivations() {
         }
     }, [searchTerm, plants]);
 
+    useEffect(() => {
+        // Pobierz listę produktów z backendu
+        const fetchPlants = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                const response = await fetch(`https://localhost:44311/agrochem/plants`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,  // Przekazujemy token w nagłówku
+                    }
+                });
+                if (!response.ok) {
+                    const result = await response.json();
+                    return { isError: true, message: result.message }
+                } else {
+                    const result = await response.json();
+                    setPlants(result);
+
+                }
+            } catch (error) {
+                console.error("Błąd podczas pobierania listy roślin:", error);
+            }
+        };
+
+        fetchPlants();
+    }, []);
+
+    useEffect(() => {
+        if (data && Array.isArray(data)) {
+            console.log("Data:", data);
+            const mappedRows = data.map((item) => ({
+                id: item.cultivationId,
+                plotNumber: item.plotNumber,
+                plantName: item.plantName,
+                area: `${item.area} ha`,
+                sowingDate: new Date(item.sowingDate).toLocaleDateString("pl-PL"),
+                originalData: item,
+            }));
+
+            setRows(mappedRows); // Ustawiamy dane w stanie
+
+        }
+    }, [data]);
+
     const columns = [
         { field: 'plotNumber', headerName: 'Numer działki', flex: 1, headerClassName: 'super-app-theme--header' },
         { field: 'plantName', headerName: 'Uprawiana roślina', flex: 1, },
@@ -58,14 +103,7 @@ function Cultivations() {
 
     ];
 
-    const rows = cultivations.map((item) => ({
-        id: item.cultivationId,
-        plotNumber: item.plotNumber,
-        plantName: item.plantName,
-        area: `${item.area} ha`,       
-        sowingDate: new Date(item.sowingDate).toLocaleDateString("pl-PL"),
-        originalData: item,
-    }));
+   
 
     // Obsługa pola wyszukiwania
     const handleSearchChange = (e) => {
@@ -278,7 +316,9 @@ function Cultivations() {
                     </div>
                 </div>
                 <div className={classes.container}>
-                    <UniversalTable columns={columns}
+                    <UniversalTable
+                        key={JSON.stringify(rows)}
+                        columns={columns}
                         rows={rows}
                         onEdit={handleEdit} // Funkcja obsługująca edycję
                         onArchive={handleArchive} // Funkcja obsługująca archiwizację

@@ -52,21 +52,16 @@ function MainNavigation() {
                         <Nav>
                             {user ? (
                                 <>
-                                    {role === 'Admin' ? (
-                                        <>
-                                            <Nav.Link style={{ float: 'left' }} href="/plants">Rośliny</Nav.Link>
-                                            <Nav.Link style={{ float: 'left' }} href="/diseases">Choroby roślin</Nav.Link>
-                                            <Nav.Link style={{ float: 'left' }} href="/chemicalagents">Środki chemiczne</Nav.Link>
-                                        </>
-                                    ) :
-                                        <>
-                                            <Nav.Link style={{ float: 'left' }} href="/plots">Działki</Nav.Link>
-                                            <Nav.Link style={{ float: 'left' }} href="/cultivations">Uprawy</Nav.Link>
-                                       </>
-                                    }
-
-                                    <Nav.Link style={{ float: 'rigth' }} href="/">Witaj, {user}!</Nav.Link> {/* Wyświetla nazwę użytkownika */}
+                                    <Nav.Link style={{ float: 'left' }} href="/plants">Rośliny</Nav.Link>
+                                    <Nav.Link style={{ float: 'left' }} href="/diseases">Choroby roślin</Nav.Link>
+                                    <Nav.Link style={{ float: 'left' }} href="/chemicalagents">Środki chemiczne</Nav.Link>
+                                    <Nav.Link style={{ float: 'left' }} href="/chemicaltreatment">Zabiegi chemiczne</Nav.Link>
+                                    <Nav.Link style={{ float: 'left' }} href="/plots">Działki</Nav.Link>
+                                    <Nav.Link style={{ float: 'left' }} href="/cultivations">Uprawy</Nav.Link>
+                                    <Nav.Link style={{ float: 'rigth' }} href="/">Witaj, {user}!</Nav.Link>
                                     <Nav.Link style={{ float: 'rigth' }} onClick={handleLogout}>Wyloguj</Nav.Link>
+
+                                   
                                 </>
                             ) : (
                                 <>

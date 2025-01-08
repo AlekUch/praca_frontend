@@ -11,7 +11,7 @@
     transition: background-color 0.3s ease;
     font-weight: 400;
     margin-top: 3%;
-    margin-bottom:0;
+    margin-bottom: 0;
 }
 
     .savePlotButton:hover {
@@ -30,7 +30,7 @@
     width: 50%;
     margin: auto;
     border-radius: 1.5rem;
-    margin-top:1%;
+    margin-top: 1%;
 }
 
 .modalTitle {
@@ -50,30 +50,40 @@
 
 
 .profilePicture {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid #d3d3d3; /* Jasno szary border */
-    background-color: white;
-    position: absolute;
-    top: 120px;
-    left: 50%;
-    transform: translateX(-50%);
-    transition: transform 0.5s ease-in-out, box-shadow 0.3s ease-in-out;
+    position: relative;
+    width: 100%;
+    height: 300px; /* Okreœlenie wysokoœci kontenera */
+    overflow: visible; /* Zezwolenie na wychodzenie obrazu poza granice kontenera */
 }
 
 .profileImg {
-    width: 100%; /* Dopasowanie zdjêcia do kontenera */
+    position: absolute; /* Ustawienie obrazu w taki sposób, aby móg³ wychodziæ poza granice */
+    top: 0;
+    left: 0;
+    width: 100%;
     height: 100%;
-    object-fit: cover; /* Wype³nienie w kszta³cie ko³a */
-    transition: transform 0.3s ease-in-out; /* Animacja powiêkszania zdjêcia */
+    object-fit: cover; /* Dopasowanie obrazu do kontenera */
+    transition: transform 0.3s ease-in-out; /* P³ynne powiêkszanie */
+    object-position: center; /* Obrazek bêdzie wyœrodkowany */
 }
 
-/* Efekt najechania na kontener */
+/* Powiêkszenie obrazu */
+.profilePicture:hover .profileImg {
+    transform: scale(1.5); /* Powiêkszenie obrazu przy najechaniu */
+}
+
+/* Opcjonalnie - cieñ przy najechaniu */
 .profilePicture:hover {
-    transform: translateX(-50%) scale(2.6); /* Powiêkszenie kontenera */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Cieñ dla efektu g³êbi */
+}
+
+.cardCustom {
+    position: relative; /* Umo¿liwia wychodzenie zawartoœci poza granice */
+    overflow: visible; /* Wa¿ne, aby obrazek móg³ wychodziæ poza kontener */
+    width: 40%;
+    margin: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* Powiêkszenie zdjêcia przy najechaniu */
@@ -85,4 +95,18 @@
     width: 90%;
     margin: auto;
     text-align: justify;
+}
+.cardContainer {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap; /* Pozwala na zawijanie elementów */
+}
+
+
+
+@media (max-width: 768px) {
+    .cardCustom {
+        width: 100%; /* Karty zajmuj¹ pe³n¹ szerokoœæ na mniejszych ekranach */
+    }
 }

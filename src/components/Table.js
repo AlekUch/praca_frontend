@@ -6,33 +6,58 @@ import IconButton from "@mui/material/IconButton";
 import EditIcon from "@mui/icons-material/Edit";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import UndoIcon from "@mui/icons-material/Undo";
+import DeleteIcon from '@mui/icons-material/Delete';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import 'jspdf/dist/jspdf.umd.min.js';
 import './DataGridStyles.css';
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
 const Table = ({ columns,
         rows,
         onEdit, // Funkcja dynamiczna do obsługi edycji
         onArchive, // Funkcja dynamiczna do obsługi archiwizacji
-        archivalField = "archival", // Nazwa pola odpowiadającego za status archiwizacji
+    archivalField = "archival",
+    title,    // Nazwa pola odpowiadającego za status archiwizacji
     }) => {
     // Dodajemy kolumnę akcji dynamicznie
     const actionColumn = {
         field: "actions",
         headerName: "",
-        minWidth:200,
+        minWidth:110,
         sortable: false,
         renderCell: (params) => {
             const data = params.row.originalData; // Pobieramy oryginalny obiekt danych
-            const isArchived = data[archivalField]; // Sprawdzamy status archiwizacji dynamicznie
+
+            if (!data || !(archivalField in data)) {
+                return (
+                    <>
+                        <Tooltip title="Edytuj">
+                            <IconButton
+                                onClick={() => onEdit(data)} // Wywołujemy dynamiczną funkcję edycji
+                                style={{ marginRight: "2px" }}
+                            >
+                                <EditIcon color="primary" />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Usuń">
+                            <IconButton onClick={() => onArchive(data, true)}> {/* Wywołujemy dynamiczną funkcję archiwizacji */}
+                                <DeleteIcon  style={{ color: "red" }} />
+                            </IconButton>
+                        </Tooltip>
+                    </>
+                ); // Jeśli pole archivalField nie istnieje, nic nie renderujemy
+            }
+
+            const isArchived = data[archivalField]; 
 
             return !isArchived ? (
                 <>
                     <Tooltip title="Edytuj">
                         <IconButton
                             onClick={() => onEdit(data)} // Wywołujemy dynamiczną funkcję edycji
-                            style={{ marginRight: "5px" }}
+                            style={{ marginRight: "2px" }}
                         >
                             <EditIcon color="primary" />
                         </IconButton>
@@ -67,13 +92,17 @@ const Table = ({ columns,
     };
 
     // Przetwarzamy kolumny, aby dodać renderowanie komórek z rozwijaniem
-    const processedColumns = columns.map((column) => ({
+    const processedColumns = columns.map((column, colIndex) => ({
         ...column,
         renderCell: (params) => {
-            const value = params.value;
+            const rowHasLongText = Object.values(params.row).some(
+                (value) => typeof value === "string" && value.length > 20
+            );
+            const isFirstColumn = colIndex === 0;
             const isExpanded = expandedRows[params.id];
 
-            if (typeof value === "string" && value.length > 30) {
+            // Przyciski tylko w pierwszej kolumnie
+            if (rowHasLongText && isFirstColumn) {
                 return (
                     <div
                         style={{
@@ -81,57 +110,49 @@ const Table = ({ columns,
                             wordWrap: isExpanded ? "break-word" : "normal",
                             overflow: isExpanded ? "visible" : "hidden",
                             textOverflow: isExpanded ? "unset" : "ellipsis",
-                            cursor: !isExpanded ? "pointer" : "default",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
                         }}
-                        onClick={() => !isExpanded && toggleRowExpand(params.id)} // Rozwijanie po kliknięciu
+                        onClick={() => toggleRowExpand(params.id)}
                     >
-                        {isExpanded ? (
-                            <span>
-                                {value}{" "}
-                                <Button
-                                    size="small"
-                                    onClick={(e) => {
-                                        e.stopPropagation(); // Zapobiega wyzwoleniu onClick wiersza
-                                        toggleRowExpand(params.id);
-                                    }}
-                                    style={{ marginLeft: 8, color: "red" }}
-                                >
-                                    Zwiń
-                                </Button>
-                            </span>
-                        ) : (
-                            <span>
-                                {`${value.substring(0, 30)}`}{" "}
-                                <Button
-                                    size="small"
-                                    onClick={(e) => {
-                                        e.stopPropagation(); // Zapobiega wyzwoleniu onClick wiersza
-                                        toggleRowExpand(params.id);
-                                    }}
-                                    style={{
-                                        marginLeft: 8,
-                                        color: "blue",
-                                        fontStyle: "italic",
-                                    }}
-                                >
-                                    Rozwiń
-                                </Button>
-                            </span>
-                        )}
+                        <IconButton
+                            size="small"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                toggleRowExpand(params.id);
+                            }}
+                            style={{ marginRight: 1, color: isExpanded ? "red" : "blue" }}
+                        >
+                            {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                        </IconButton>
+                        <span>
+                            {isExpanded
+                                ? params.row[column.field] // Tylko wartość dla tej kolumny
+                                : `${params.row[column.field]?.substring(0, 20)}`}
+                        </span>
                     </div>
                 );
             }
 
-            return (
-                <div
-                    style={{
-                        whiteSpace: "normal",
-                        wordWrap: "break-word",
-                    }}
-                >
-                    {value}
-                </div>
-            );
+            // Wszystkie inne kolumny w wierszu
+            if (typeof params.value === "string" && params.value.length > 20) {
+                return (
+                    <div
+                        style={{
+                            whiteSpace: isExpanded ? "normal" : "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                        }}
+                    >
+                        {isExpanded
+                            ? params.value // Rozwinięty tekst
+                            : `${params.value.substring(0, 20)}...`} {/* Obcięty tekst */}
+                    </div>
+                );
+            }
+
+            return <div>{params.value}</div>;
         },
     }));
 
@@ -159,45 +180,53 @@ const Table = ({ columns,
     };
 
     const handlePrint = () => {
-        // Tworzenie nowego okna do drukowania
         const printWindow = window.open('', '', 'width=800,height=600');
 
         if (printWindow) {
-            // Składanie HTML do wydruku
             const printContent = `
-        <html>
-          <head>
-            <title>${ 'DANE AGROCHEM'}</title>
-            <style>
-              table { width: 100%; border-collapse: collapse; }
-              th, td { padding: 8px; border: 1px solid black; }
-            </style>
-          </head>
-          <body>
-            <h2>${'DANE AGROCHEM'}</h2>
-            <table>
-              <thead>
-                <tr>
-                  ${columns.map(col => `<th>${col.headerName}</th>`).join('')}
-                </tr>
-              </thead>
-              <tbody>
-                ${filteredRows.map(row => `
-                  <tr>
-                    ${columns.map(col => `<td>${row[col.field]}</td>`).join('')}
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </body>
-        </html>
-      `;
+            <html>
+                <head>
+                    <title>${title}</title>
+                    <style>
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { padding: 8px; border: 1px solid black; text-align: center; }
+                        img { max-width: 200px; height: auto; }
+                    </style>
+                </head>
+                <body>
+                    <h2>${title}</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                ${columns
+                    .filter(col => col.headerName !== 'Szczegóły') // Usuwamy kolumnę "Szczegóły"
+                    .map(col => `<th>${col.headerName}</th>`)
+                    .join('')}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${filteredRows.map(row => `
+                                <tr>
+                                    ${columns
+                            .filter(col => col.headerName !== 'Szczegóły') // Usuwamy kolumnę "Szczegóły"
+                            .map(col => {
+                                if (col.field === 'photo') {
+                                    const photoSrc = row.photo?.props?.src || null;
+                                    return `<td>${photoSrc ? `<img src="${photoSrc}" alt="Zdjęcie" />` : ''}</td>`;
+                                }
+                                return `<td>${row[col.field] || ''}</td>`;
+                            })
+                            .join('')}
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </body>
+            </html>
+        `;
 
-            // Wstawienie zawartości HTML do nowego okna
             printWindow.document.write(printContent);
-
-            // Wywołanie funkcji do drukowania w nowym oknie
-            printWindow.document.close(); // Koniec pisania w dokumencie
+            printWindow.document.close();
             printWindow.print();
         }
     };
@@ -205,9 +234,11 @@ const Table = ({ columns,
 
 
 
+
+
     return (
         <Paper sx={{
-            maxWidth: 1200,
+            width:"auto",
             margin: "5% auto",
             padding: "10px",
             borderRadius: "10px",
@@ -240,7 +271,7 @@ const Table = ({ columns,
                 pageSizeOptions={[8, 16,24,32]}
                 selectionModel={[]}
                 disableSelectionOnClick={true}
-                style={{ wordWrap: 'break-word' }}
+                style={{ wordWrap: 'break-word', fontSize:'12px' }}
                 getRowHeight={(params) =>
                     expandedRows[params.id] ? 'auto' : null // Dynamicznie ustawiamy wysokość wiersza
                 }

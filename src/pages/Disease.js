@@ -10,6 +10,10 @@ import { useNavigate, useLoaderData, json, useSubmit, useActionData, useRevalida
 import Table from 'react-bootstrap/Table';
 import { OverlayTrigger, Tooltip, DropdownButton } from 'react-bootstrap';
 import { format } from 'date-fns';
+import UniversalTable from '../components/Table';
+import handleDelete from '../components/DeleteHandler';
+import { Visibility } from "@mui/icons-material";
+import { IconButton } from "@mui/material";
 
 const renderTooltip = (message) => (
     <Tooltip id="button-tooltip">{message}</Tooltip>
@@ -22,19 +26,25 @@ function Disease() {
     const [validated, setValidated] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [plants, setPlants] = useState([]);
+    const [selectedDisease, setSelectedDisease] = useState(null);
     const data = useLoaderData();
     const submit = useSubmit();
     const actionData = useActionData();
     const { revalidate } = useRevalidator();
     const dropdownRef = useRef(null);
+    const [preview, setPreview] = useState(null);
+    const [photo, setPhoto] = useState();
+    const navigate = useNavigate();
+    const [rows, setRows] = useState([]);
     const [formData, setFormData] = useState({
         name:"",
         characteristic: "",
         reasons: "",
+        prevention:"",
         file: null,
         plantDisease: [], // Tablica na ID wybranych produktów
     });
-
+    
 
     useEffect(() => {
         if (!actionData)
@@ -55,7 +65,7 @@ function Disease() {
                 text: actionData.message,
             });
         }
-    }, [actionData]
+    }, [actionData, revalidate]
     );
     useEffect(() => {
         // Pobierz listę produktów z backendu
@@ -74,8 +84,7 @@ function Disease() {
                 } else {
                     const result = await response.json();
                     setPlants(result);
-                    console.log(plants);
-                    console.log("Selected Products:", formData.plantDisease);
+                    
                 }
             } catch (error) {
                 console.error("Błąd podczas pobierania listy roślin:", error);
@@ -85,11 +94,55 @@ function Disease() {
         fetchPlants();
     }, []);
 
+    useEffect(() => {
+        if (data && Array.isArray(data)) {
+            console.log("Data:", data);
+            const mappedRows = data.map((item) => ({
+                id: item.diseaseId,
+                name: item.name,
+                characteristic: item.characteristic,
+                reasons: item.reasons,
+                plantDiseases: item.plantDiseases,
+                prevention: item.prevention,
+                photo: (
+                    <img
+                        src={item.photo}
+                        alt={item.photoName}
+                        style={{ width: "200px", height: "auto" }}
+                    />
+                ),
+                originalData: item,
+                details: (
+                    <IconButton
+                        onClick={() => navigate(`/disease/${item.diseaseId}`)} // Funkcja do kliknięcia
+                        color="primary"
+                    >
+                        <Visibility />
+                    </IconButton>)
+            }));
+           
+            setRows(mappedRows); // Ustawiamy dane w stanie
+            
+        }
+    }, [data, navigate]);
+    
+    const columns = [
+        { field: 'name', headerName: 'Nazwa', minWidth: 200, headerAlign: 'center' },
+        { field: 'characteristic', headerName: 'Charakterystyka', minWidth: 200, headerAlign: 'center' },
+        { field: 'reasons', headerName: 'Przyczyna', minWidth: 200, headerAlign: 'center' },
+        { field: "plantDiseases", headerName: "Atakowane rośliny", minWidth: 200, headerAlign: 'center' },
+        { field: "prevention", headerName: "Zwalczanie", minWidth:200, headerAlign: "center" },
+        { field: "photo", headerName: "Zdjęcie", minWidth: 150, headerAlign: 'center' },
+        { field: "details", headerName: "Szczegóły", minWidth: 100, headerAlign: 'center' },
+    ];
+
+    
+
     const handleShow = () => setShow(true);
 
-    //if (data.isError) {
-    //    return <p>Błąd: {data.message}</p>;
-    //}
+    if (data.isError) {
+        return <p>Błąd: {data.message}</p>;
+    }
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -116,17 +169,38 @@ function Disease() {
             for (let pair of data.entries()) {
                 console.log(`${pair[0]}:`, `${pair[1]}`);
             }
-            //const formData = new FormData(form);
-            console.log(editMode);
 
             if (editMode) {
-                // Prześlij żądanie PUT
+                try {
+                    const token = localStorage.getItem("token");
+                    const response = await fetch(`https://localhost:44311/agrochem/disease/${selectedDisease.diseaseId}`, {
+                        method: "PUT",
+                        headers: {
+                            // 'Content-Type': 'application/json',
+                            Authorization: `Bearer ${token}`
+                        },
+                        body: data,
+                    });
 
-               // formData.append('id', selectedPlant.plantId); // Ustaw identyfikator użytkownika
-                submit(data, { method: 'PUT' });
+                    if (!response.ok) {
+                        const result = await response.json();
+                        return json({ status: 'error', message: result.message }, { status: response.status });
+                    } else {
+                        const result = await response.json();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Sukces',
+                            text: result.message,
+                        }).then(() => {
+                            revalidate();
+                            setShow(false);
+                        });
+                    }
+                } catch (error) {
+                    return json({ status: 'error', message: error.message }); // Wyświetl błąd
+
+                }
             } else {
-                // Prześlij żądanie POST
-                /*submit(data, { method: 'POST' });*/
                 try {
                     const token = localStorage.getItem("token");
                     const response = await fetch('https://localhost:44311/agrochem/disease', {
@@ -163,6 +237,15 @@ function Disease() {
 
     const handleFileChange = (e) => {
         setFormData((prev) => ({ ...prev, file: e.target.files[0] }));
+        const photo = e.target.files[0];
+        if (photo) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreview(reader.result);  // Ustawienie prewizualizacji wybranego obrazu
+            };
+            reader.readAsDataURL(photo);
+            setPhoto(photo);  // Ustawienie wybranego pliku
+        }
     };
 
     const handleCheckboxChange = (plantId) => {
@@ -176,17 +259,39 @@ function Disease() {
         });
     };
 
-    const handleEdit = (plant) => {
+    const handleEdit = (disease) => {
+        
         setEditMode(true);
-        //setSelectedPlant(plant);
+        setFormData((prev) => ({
+            name: disease.name,
+            characteristic: disease.characteristic,
+            reasons: disease.reasons,
+            prevention: disease.prevention,
+            file: null,
+            plantDisease: disease.plantsId.split(',').map(Number)
+        }));
+        setPreview(disease.photo);
+        setSelectedDisease(disease);
         setShow(true);
     };
 
     const handleClose = () => {
         setEditMode(false);
-        //setSelectedPlant(null);
+        setSelectedDisease(null);
+        setFormData((prev) => ({
+        name: "",
+            characteristic: "",
+            reasons: "",
+            prevention:"",
+            file: null,
+            plantDisease: [],
+        }));
+        setPreview(null);
         setShow(false);
     };
+    const handleArchive = (disease) => {
+        handleDelete(disease.diseaseId, deleteDisease);
+    }
 
     const renderSelectedPlants = () =>
         formData.plantDisease
@@ -202,7 +307,19 @@ function Disease() {
                         <Button variant="danger" size="lg" onClick={handleShow}>Dodaj nową chorobę</Button>
                     </div>
                 </div>
-                <Modal show={show} onHide={handleClose} size="md" className={classes.modal} >
+                <div className={classes.container}>
+                    {console.log("Rendering table with rows:", rows)}
+                    <UniversalTable
+                        key={JSON.stringify(rows)}
+                        columns={columns}
+                        rows={rows}
+                        onEdit={handleEdit} // Funkcja obsługująca edycję
+                        onArchive={handleArchive} // Funkcja obsługująca archiwizację
+                        archivalField="archival" // Nazwa pola archiwizacji (dynamiczne)
+                        title="Choroby roślin"
+                    />
+                </div>
+                <Modal show={show} onHide={handleClose} size="xl" className={classes.modal} >
                     <Modal.Header closeButton >
                         <Modal.Title className={classes.modalTitle}>
                             {editMode ? 'Edytuj chorobę' : 'Utwórz nową chorobę'}
@@ -211,15 +328,15 @@ function Disease() {
                     <Modal.Body>
                         <Form noValidate validated={validated} method={editMode ? 'PUT' : 'POST'} onSubmit={handleSubmit} encType="multipart/form-data">
                             <Form.Group as={Row} className="mb-4" controlId="Name">
-                                <Form.Label column sm={3}>
+                                <Form.Label column sm={2}>
                                     Nazwa choroby
                                 </Form.Label>
-                                <Col sm={9}>
+                                <Col sm={10}>
                                     <Form.Control
                                         type="text"
                                         value={formData.name}
                                         onChange={handleInputChange}
-                                        
+                                        //defaultValue={editMode && selectedDisease ? selectedDisease.name : ''}
                                         required name="name"
                                        // defaultValue={editMode && selectedPlant ? selectedPlant.name : ''}
                                     />
@@ -228,17 +345,17 @@ function Disease() {
                                 </Col>
                             </Form.Group>
                             <Form.Group as={Row} className="mb-4" controlId="Characterisctic">
-                                <Form.Label column sm={3}>
+                                <Form.Label column sm={2}>
                                    Charakterystyka
                                 </Form.Label>
-                                <Col sm={9}>
+                                <Col sm={10}>
                                     <Form.Control 
                                         as="textarea"
                                         value={formData.characteristic}
                                         onChange={handleInputChange}
                                         maxLength={2000}
                                         rows={5}
-                                        
+                                        //defaultValue={editMode && selectedDisease ? selectedDisease.characteristic : ''}
                                         required name="characteristic"
                                         
                                        // defaultValue={editMode && selectedPlant ? selectedPlant.rotationPeriod : ''}
@@ -249,15 +366,15 @@ function Disease() {
                             </Form.Group>
 
                             <Form.Group as={Row} className="mb-4" controlId="Reason">
-                                <Form.Label column sm={3}>
+                                <Form.Label column sm={2}>
                                     Przyczyna
                                 </Form.Label>
-                                <Col sm={9}>
+                                <Col sm={10}>
                                     <Form.Control
                                         type="text"
                                         value={formData.reasons}
                                         onChange={handleInputChange}
-
+                                        defaultValue={editMode && selectedDisease ? selectedDisease.reasons : ''}
                                         required name="reasons"
                                     // defaultValue={editMode && selectedPlant ? selectedPlant.name : ''}
                                     />
@@ -267,15 +384,16 @@ function Disease() {
                             </Form.Group>
 
                             <Form.Group as={Row} className="mb-4" controlId="plantDisease">
-                                <Form.Label column sm={3}>
+                                <Form.Label column sm={2}>
                                   Atakowane rośliny
                                 </Form.Label>
-                                <Col sm={9}>
+                                <Col sm={10}>
                                     <DropdownButton
                                         ref={dropdownRef}
                                         title={renderSelectedPlants() || "Wybierz rośliny"}
                                         variant="secondary"
-                                        className="mb-3"
+                                        className="col-1"
+                                       
                                     >
                                         {plants.map((plant) => (
                                             <Form.Check
@@ -285,7 +403,7 @@ function Disease() {
                                                 value={plant.plantId}
                                                 checked={formData.plantDisease.includes(plant.plantId)}
                                                 onChange={() => handleCheckboxChange(plant.plantId)}
-                                                style={{ padding: "0.5rem 1rem" }}
+                                                style={{ padding: "0.5rem 5rem",width:"300px" }}
                                             />
                                         ))}
                                     </DropdownButton>
@@ -293,11 +411,32 @@ function Disease() {
                                 </Col>
                             </Form.Group>
 
+                            <Form.Group as={Row} className="mb-4" controlId="Prevention">
+                                <Form.Label column sm={2}>
+                                    Zwalczanie
+                                </Form.Label>
+                                <Col sm={10}>
+                                    <Form.Control
+                                        as="textarea"
+                                        value={formData.prevention}
+                                        onChange={handleInputChange}
+                                        maxLength={1000}
+                                        rows={3}
+                                        //defaultValue={editMode && selectedDisease ? selectedDisease.characteristic : ''}
+                                        required name="prevention"
+
+                                    // defaultValue={editMode && selectedPlant ? selectedPlant.rotationPeriod : ''}
+                                    />
+                                    <Form.Control.Feedback></Form.Control.Feedback>
+
+                                </Col>
+                            </Form.Group>
+
                             <Form.Group as={Row} className="mb-4"  controlId="File">
-                                <Form.Label column sm={3}>
+                                <Form.Label column sm={2}>
                                     Plik
                                 </Form.Label>
-                                <Col sm={9}>
+                                <Col sm={10}>
                                 <Form.Control
                                     type="file"
                                     name="file"
@@ -305,6 +444,14 @@ function Disease() {
                                     onChange={handleFileChange}
                                    // required
                                     />
+                                    <div>
+                                        <p style={{float:"left"} }>Obecny obraz:</p>
+                                        <img
+                                            src={preview}
+                                            alt="Nie wybrano obrazu"
+                                            style={{ maxWidth: '300px', marginTop: '10px' }}
+                                        />
+                                    </div>
                                 </Col>
                                 </Form.Group>
 
@@ -427,4 +574,29 @@ export async function action({ request, params }) {
         return json({ status: 'error', message: error.message }); // Wyświetl błąd
 
     }
+ }
+
+export async function deleteDisease(id) {
+    const token = localStorage.getItem("token");
+    const url = `https://localhost:44311/agrochem/disease/delete/${id}`;
+    try {
+        const response = await fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            return { status: 'success', message: result.message };
+        } else {
+            const errorData = await response.json();
+            return { status: 'error', message: errorData.message || 'Wystąpił błąd podczas usuwania.' };
+        }
+    } catch (error) {
+        return { status: 'error', message: 'Nie udało się usunąć.' };
+    }
 }
+ 

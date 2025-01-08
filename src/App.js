@@ -11,6 +11,8 @@ import PlantPage, { loader as loaderPlants, action as actionPlants } from './pag
 import ChemicalAgentPage, { loader as loaderChemAgent, action as actionChemAgent } from './pages/ChemicalAgents';
 import ChemAgentDetailsPage, {loader as loaderChemDetails, action as actionChemDetails } from './pages/ChemicalAgentDetails';
 import DiseasePage, { loader as loaderDiseases, action as actionDiseases } from './pages/Disease';
+import DiseaseDetailsPage, { loader as loaderDiseaseDetails } from './pages/DiseaseDetails';
+import ChemicalTreatmentPage, { /*loader as loaderDiseaseDetails*/ } from './pages/ChemicalTreatment';
 
 const router = createBrowserRouter([
     {
@@ -41,13 +43,15 @@ const router = createBrowserRouter([
             },
             {
                 path: 'plants',
-                element: localStorage.getItem('role') === 'Admin' ? <PlantPage /> : <LoginPage />,
+                element: <PlantPage />,
+                /*element: localStorage.getItem('role') === 'Admin' ? <PlantPage /> : <LoginPage />,*/
                 loader: loaderPlants,
                 action: actionPlants
             },
             {
                 path: 'chemicalagents',
-                element: localStorage.getItem('role') === 'Admin' ? <ChemicalAgentPage /> : <LoginPage />,
+                element: <ChemicalAgentPage />,
+               /* element: localStorage.getItem('role') === 'Admin' ? <ChemicalAgentPage /> : <LoginPage />,*/
                 loader: loaderChemAgent,
                 action: actionChemAgent,               
             },
@@ -61,8 +65,21 @@ const router = createBrowserRouter([
             {
                 path: "diseases",
                 element: <DiseasePage />,
-               /* loader: loaderDiseases,*/
+                loader: loaderDiseases,
                 action: actionDiseases,
+
+            },
+            {
+                path: "disease/:id",
+                element: <DiseaseDetailsPage />,
+                loader: loaderDiseaseDetails
+
+            },
+            {
+                path: "chemicaltreatment",
+                element: <ChemicalTreatmentPage />,
+                //loader: loaderDiseases,
+                //action: actionDiseases,
 
             },
             //    children: [

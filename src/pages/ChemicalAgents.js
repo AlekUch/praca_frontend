@@ -27,7 +27,7 @@ function Plants() {
     const actionData = useActionData();
     const { revalidate } = useRevalidator();
     const navigate = useNavigate();
-    const [expandedRows, setExpandedRows] = useState({});
+    const [rows, setRows] = useState([]);
     const chemAgents = data;
     useEffect(() => {
         if (!actionData)
@@ -51,29 +51,37 @@ function Plants() {
     }, [actionData]
     );
 
+    useEffect(() => {
+        if (data && Array.isArray(data)) {
+            console.log("Data:", data);
+            const mappedRows = data.map((item) => ({
+                id: item.chemAgentId,
+                name: item.name,
+                type: item.type,
+                description: item.description,
+                originalData: item,
+                details: (
+                    <IconButton
+                        onClick={() => navigate(`/chemicalagents/${item.chemAgentId}`)} // Funkcja do kliknięcia
+                        color="primary"
+                    >
+                        <Visibility />
+                    </IconButton>)
+            }));
+
+            setRows(mappedRows); // Ustawiamy dane w stanie
+
+        }
+    }, [data, navigate]);
     const columns = [
-        { field: 'name', headerName: 'Nazwa', minWidth: 180, headerAlign: 'center' },
-        { field: 'type', headerName: 'Typ', minWidth: 160, headerAlign: 'center' },
-        { field: 'description', headerName: 'Opis', minWidth: 500, headerAlign: 'center' },
+        { field: 'name', headerName: 'Nazwa', minWidth: 200, headerAlign: 'center' },
+        { field: 'type', headerName: 'Typ', minWidth: 200, headerAlign: 'center' },
+        { field: 'description', headerName: 'Opis', minWidth: 530, headerAlign: 'center' },
         { field: "details", headerName: "Szczegóły", minWidth: 100, headerAlign: 'center' },
 
     ];
 
-    const rows = chemAgents.map((item) => ({
-        id: item.chemAgentId,
-        name: item.name,
-        type: item.type,
-        description: item.description,
-        originalData: item,
-        details: (
-            <IconButton
-                onClick={() => navigate(`/chemicalagents/${item.chemAgentId}`)} // Funkcja do kliknięcia
-                color="primary"
-            >
-                <Visibility />
-            </IconButton>)
-    }));
-   
+
     const handleShow = () => setShow(true);
 
     if (data.isError) {
@@ -140,7 +148,7 @@ function Plants() {
                         title: 'Sukces',
                         text: response.message,
                     }).then(() => {
-                        window.location.reload(true);
+                        revalidate();
                     });
                    
                 } else {
@@ -162,11 +170,14 @@ function Plants() {
                     </div>
                 </div>
                 <div className={classes.container}>
-                    <UniversalTable columns={columns}
+                    <UniversalTable
+                        key={JSON.stringify(rows)}
+                        columns={columns}
                         rows={rows}
                         onEdit={handleEdit} // Funkcja obsługująca edycję
                         onArchive={handleArchive} // Funkcja obsługująca archiwizację
                         archivalField="archival" // Nazwa pola archiwizacji (dynamiczne)
+                        titlr="Środki chemiczne"
                     />
                 </div>
                 <Modal show={show} onHide={handleClose} size="md" className={classes.modal} >

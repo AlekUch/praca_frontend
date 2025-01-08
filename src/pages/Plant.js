@@ -13,6 +13,7 @@ import Swal from 'sweetalert2';
 import { useNavigate, useLoaderData, json, useSubmit, useActionData, useRevalidator } from 'react-router-dom';
 import Table from 'react-bootstrap/Table';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
+import UniversalTable from '../components/Table';
 
 const renderTooltip = (message) => (
     <Tooltip id="button-tooltip">{message}</Tooltip>
@@ -30,6 +31,7 @@ function Plants() {
     const submit = useSubmit();
     const actionData = useActionData();
     const { revalidate } = useRevalidator();
+    const [rows, setRows] = useState([]);
     useEffect(() => {
         if (!actionData)
             return;
@@ -52,6 +54,25 @@ function Plants() {
     }, [actionData]
     );
 
+    useEffect(() => {
+        if (data && Array.isArray(data)) {
+            console.log("Data:", data);
+            const mappedRows = data.map((item) => ({
+                id: item.plantId,
+                name: item.name,
+                rotationPeriod: item.rotationPeriod,              
+                originalData: item,
+            }));
+
+            setRows(mappedRows); // Ustawiamy dane w stanie
+
+        }
+    }, [data]);
+
+    const columns = [
+        { field: 'name', headerName: 'Roślina', minWidth: 500, headerAlign: 'center' },
+        { field: 'rotationPeriod', headerName: 'Okres zmianowania', minWidth: 450, headerAlign: 'center' },    
+    ];
     const handleShow = () => setShow(true);
 
     if (data.isError) {
@@ -137,68 +158,14 @@ function Plants() {
                     </div>
                 </div>
                 <div className={classes.container}>
-                    <Table responsive >
-                        <thead >
-                            <tr >
-                             <th>#</th>
-                                <th>Nazwa</th>
-                                <th>Okres zmianowania (lata)</th>
-                                <th></th>
-
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {plants.map(plant => (
-                                <tr key={plant.plantId}>
-                                    <td>{plant.plantId}</td>
-                                    <td>{plant.name}</td>
-                                    <td>{plant.rotationPeriod}</td>
-                                    
-                                    {plant.archival===false ? (
-                                        <>
-                                            <td>
-                                                <OverlayTrigger
-                                                    placement="top"
-                                                    overlay={renderTooltip('Edytuj')}
-                                                >
-                                                    <i
-                                                        className="bi bi-pencil-square"
-                                                        style={{ cursor: 'pointer', marginRight: '10px' }}
-                                                        onClick={() => handleEdit(plant)}
-                                                    />
-                                                </OverlayTrigger>
-
-
-                                                <OverlayTrigger
-                                                    placement="top"
-                                                    overlay={renderTooltip('Archiwizuj')}
-                                                >
-                                                    <i
-                                                        className="bi bi-archive"
-                                                        style={{ cursor: 'pointer', color: 'red' }}
-                                                        onClick={() => handleArchive(plant, true)}
-                                                    />
-                                                </OverlayTrigger>
-                                            </td>
-                                        </>
-                                    ) : (
-                                        <><td>
-                                            <OverlayTrigger
-                                                placement="top"
-                                                overlay={renderTooltip('Cofnij archiwizację')}
-                                            >
-                                                <i
-                                                    className={"bi bi-arrow-counterclockwise"}
-                                                    style={{ cursor: 'pointer', color: 'green' }}
-                                                    onClick={() => handleArchive(plant, false)}
-                                                />
-                                            </OverlayTrigger>
-                                        </td></>
-                                    )}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
+                    <UniversalTable
+                        key={JSON.stringify(rows)}
+                        columns={columns}
+                        rows={rows}
+                        onEdit={handleEdit} // Funkcja obsługująca edycję
+                        onArchive={handleArchive} // Funkcja obsługująca archiwizację
+                        archivalField="archival" // Nazwa pola archiwizacji (dynamiczne)
+                    />
                 </div>
                 <Modal show={show} onHide={handleClose} size="md" className={classes.modal} >
                     <Modal.Header closeButton >

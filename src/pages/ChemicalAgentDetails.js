@@ -15,7 +15,7 @@ const renderTooltip = (message) => (
 
 const MySwal = withReactContent(Swal);
 
-const DetailsPage = () => {
+const ChemicalAgentDetails = () => {
     const [show, setShow] = useState(false);
     const [validated, setValidated] = useState(false);
     const [editMode, setEditMode] = useState(false);
@@ -29,6 +29,7 @@ const DetailsPage = () => {
     const [selectedChemUse, setSelectedChemUse] = useState(null);
     const { id } = useParams();
     const { revalidate } = useRevalidator();
+    const [rows, setRows] = useState([]);
 
 
     useEffect(() => {
@@ -52,7 +53,26 @@ const DetailsPage = () => {
         }
     }, [actionData]
     );
-    console.log(useLoaderData());
+
+    useEffect(() => {
+        if (chemicalUses && Array.isArray(chemicalUses)) {
+            console.log("Data:", chemicalUses);
+            const mappedRows = chemicalUses.map((item) => ({
+                id: item.chemUseId,
+                plantName: item.plantName,
+                minDose: item.minDose,
+                maxDose: item.maxDose,
+                minWater: item.minWater,
+                maxWater: item.maxWater,
+                minDays: item.minDays,
+                maxDays: item.maxDays,
+                originalData: item, 
+            }));
+
+            setRows(mappedRows); // Ustawiamy dane w stanie
+
+        }
+    }, [chemicalUses]);
     if (isError) {
         return <p>Błąd: {message}</p>;
     }
@@ -67,17 +87,7 @@ const DetailsPage = () => {
         { field: "maxDays", headerName: "Ponownie max[l]", minWidth: 140, headerAlign: 'center' },
     ];
 
-    const rows = chemicalUses.map((item) => ({
-        id:item.chemUseId,
-        plantName: item.plantName,
-        minDose: item.minDose,
-        maxDose: item.maxDose,
-        minWater: item.minWater,
-        maxWater: item.maxWater,
-        minDays: item.minDays,
-        maxDays: item.maxDays,
-        originalData: item,        
-    }));
+   
     const handleShow = () => setShow(true);
 
     const handleClose = () => {
@@ -232,7 +242,9 @@ const DetailsPage = () => {
                     </div>
                     <div className="row text-center mt-5">
                         <p className="display-6 mb-5">Szczegółowe informacje </p>
-                        <UniversalTable columns={columns}
+                        <UniversalTable
+                            key={JSON.stringify(rows)}
+                            columns={columns}
                             rows={rows}
                             onEdit={handleEdit} // Funkcja obsługująca edycję
                             onArchive={handleArchive} // Funkcja obsługująca archiwizację
@@ -405,7 +417,7 @@ const DetailsPage = () => {
     )
 };
 
-export default DetailsPage;
+export default ChemicalAgentDetails;
 export async function loader({ params }) {
     const token = localStorage.getItem("token");
     const headers = {
