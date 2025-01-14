@@ -18,7 +18,7 @@ const Table = ({ columns,
         rows,
         onEdit, // Funkcja dynamiczna do obsługi edycji
         onArchive, // Funkcja dynamiczna do obsługi archiwizacji
-    archivalField = "archival",
+    archivalField ,
     title,    // Nazwa pola odpowiadającego za status archiwizacji
     }) => {
     // Dodajemy kolumnę akcji dynamicznie
@@ -30,6 +30,21 @@ const Table = ({ columns,
         renderCell: (params) => {
             const data = params.row.originalData; // Pobieramy oryginalny obiekt danych
 
+            if (archivalField === "brak") {
+                return (
+                    <>
+                        <Tooltip title="Edytuj">
+                            <IconButton
+                                onClick={() => onEdit(data)} // Wywołujemy dynamiczną funkcję edycji
+                                style={{ marginRight: "2px" }}
+                            >
+                                <EditIcon color="primary" />
+                            </IconButton>
+                        </Tooltip>
+                        
+                    </>
+                );
+            }
             if (!data || !(archivalField in data)) {
                 return (
                     <>
@@ -96,7 +111,7 @@ const Table = ({ columns,
         ...column,
         renderCell: (params) => {
             const rowHasLongText = Object.values(params.row).some(
-                (value) => typeof value === "string" && value.length > 20
+                (value) => typeof value === "string" && value.length > 70
             );
             const isFirstColumn = colIndex === 0;
             const isExpanded = expandedRows[params.id];
@@ -129,14 +144,14 @@ const Table = ({ columns,
                         <span>
                             {isExpanded
                                 ? params.row[column.field] // Tylko wartość dla tej kolumny
-                                : `${params.row[column.field]?.substring(0, 20)}`}
+                                : `${params.row[column.field]?.substring(0, 70)}`}
                         </span>
                     </div>
                 );
             }
 
             // Wszystkie inne kolumny w wierszu
-            if (typeof params.value === "string" && params.value.length > 20) {
+            if (typeof params.value === "string" && params.value.length > 70) {
                 return (
                     <div
                         style={{
@@ -147,7 +162,7 @@ const Table = ({ columns,
                     >
                         {isExpanded
                             ? params.value // Rozwinięty tekst
-                            : `${params.value.substring(0, 20)}...`} {/* Obcięty tekst */}
+                            : `${params.value.substring(0, 70)}...`} {/* Obcięty tekst */}
                     </div>
                 );
             }

@@ -151,10 +151,15 @@ function Plants() {
     return (
         <>
             <div style={{ width: '100%' }} className="p-5 text-center bg-body-tertiary ">
-                <p className="display-4">Rośliny</p>
-                <div class="row">
+                <div className={classes.containerTop} >
+                    <div className={classes.containerTitle} >
+
+                        <p className="display-4">Rośliny</p>
+                    </div>
+                <div className="row">
                     <div className="col d-flex justify-content-end">
                         <Button variant="danger" size="lg" onClick={handleShow}>Dodaj nową roślinę</Button>
+                        </div>
                     </div>
                 </div>
                 <div className={classes.container}>

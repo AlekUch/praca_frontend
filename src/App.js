@@ -12,7 +12,7 @@ import ChemicalAgentPage, { loader as loaderChemAgent, action as actionChemAgent
 import ChemAgentDetailsPage, {loader as loaderChemDetails, action as actionChemDetails } from './pages/ChemicalAgentDetails';
 import DiseasePage, { loader as loaderDiseases, action as actionDiseases } from './pages/Disease';
 import DiseaseDetailsPage, { loader as loaderDiseaseDetails } from './pages/DiseaseDetails';
-import ChemicalTreatmentPage, { /*loader as loaderDiseaseDetails*/ } from './pages/ChemicalTreatment';
+import ChemicalTreatmentPage, { loader as loaderChemTreatment, action as actionChemTreatment } from './pages/ChemicalTreatment';
 
 const router = createBrowserRouter([
     {
@@ -78,8 +78,8 @@ const router = createBrowserRouter([
             {
                 path: "chemicaltreatment",
                 element: <ChemicalTreatmentPage />,
-                //loader: loaderDiseases,
-                //action: actionDiseases,
+                loader: loaderChemTreatment,
+                action: actionChemTreatment,
 
             },
             //    children: [

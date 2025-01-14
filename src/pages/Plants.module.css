@@ -1,4 +1,27 @@
+.containerTop {
+    max-width: 1000px;
+    min-height: 390px;
+    margin-top: 0%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-image: url('../../public/rosliny.jpg');
+    background-size: 100% 100%; /* Dopasowanie szerokoœci i wysokoœci do kontenera */
+    background-position: center; /* Wyœrodkowanie obrazu */
+    background-repeat: no-repeat; /* Brak powtarzania obrazu */
+    border-radius: 20px; /* Zaokr¹glenie naro¿ników */
+    overflow: hidden; /* Ukrycie obrazu poza zaokr¹glonymi brzegami */
+}
 
+.containerTitle {
+    display: inline-block; /* Element inline-block, szerokoœæ dopasowuje siê do tekstu */
+    background-color: rgb(219, 222, 219,0.7); /* Kolor t³a */
+    padding: 10px;
+    border-radius: 20px; /* Zaokr¹glenie naro¿ników */
+    overflow: hidden; /* Ukrycie obrazu poza zaokr¹glonymi brzegami */
+    margin-top: 100px;
+}
 
 
 .savePlotButton {

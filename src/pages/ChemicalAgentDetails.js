@@ -204,7 +204,7 @@ const ChemicalAgentDetails = () => {
 
     return (
        <>       
-        <div  class="pb-5 ">
+            <div class="pb-5 " style={{ width: "100%" }}>
                 <div className={classes.container}>                
                 <div class="row">
                     <div class="col-12 ">
@@ -240,7 +240,9 @@ const ChemicalAgentDetails = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="row text-center mt-5">
+                    </div>
+                <div className="row text-center mt-5" style={{ width: "100%" }}>
+                    
                         <p className="display-6 mb-5">Szczegółowe informacje </p>
                         <UniversalTable
                             key={JSON.stringify(rows)}
@@ -251,7 +253,7 @@ const ChemicalAgentDetails = () => {
                             archivalField="archival" // Nazwa pola archiwizacji (dynamiczne)
                         />
                     </div>
-                </div>
+               
             </div>
             <Modal show={show} onHide={handleClose} className={classes.modal} >
                 <Modal.Header closeButton >
@@ -296,13 +298,13 @@ const ChemicalAgentDetails = () => {
                             </Col>
                         </Form.Group>
                         <Form.Group as={Row} className="mb-4" controlId="minDose">
-                            <Form.Label column sm={6}>Dawka minimalna [l]</Form.Label>
+                            <Form.Label column sm={6}>Dawka minimalna l/kg</Form.Label>
                             <Col sm={6}>
                                 <Form.Control
                                     type="number"
                                     required name="minDose"
-                                    step="0.10"
-                                    min="0.10"
+                                    step="0.05"
+                                    min="0.05"
                                     max="9999.99"
                                     defaultValue={editMode && selectedChemUse ? selectedChemUse.minDose : ''}
                                     //value={dateValue}
@@ -318,8 +320,8 @@ const ChemicalAgentDetails = () => {
                                 <Form.Control
                                     type="number"
                                     required name="maxDose"
-                                    step="0.10"
-                                    min="0.10"
+                                    step="0.05"
+                                    min="0.05"
                                     max="9999.99"
                                     defaultValue={editMode && selectedChemUse ? selectedChemUse.maxDose : ''}
                                     //value={dateValue}

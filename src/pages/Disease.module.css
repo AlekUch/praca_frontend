@@ -40,7 +40,7 @@
 }
 
 .container {
-    max-width: 1500px;
+    max-width: 1800px;
     margin-top: 5%;
     margin-left: auto;
     margin-right: auto;
@@ -85,4 +85,7 @@
     width: 90%;
     margin: auto;
     text-align: justify;
+}
+.css-5wdp45-MuiDataGrid-root .MuiDataGrid-cell{
+    height:250px;
 }
