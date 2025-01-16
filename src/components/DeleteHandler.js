@@ -1,5 +1,5 @@
 import Swal from 'sweetalert2';
-const handleDelete = async (item, deleteFunction) => {
+const handleDelete = async (item, deleteFunction, revalidate) => {
     Swal.fire({
         title: `Czy na pewno chcesz usunąć ta informację?`,
         text: `Po usunięciu ta informacja nie będzie dostępna!`,
@@ -18,7 +18,7 @@ const handleDelete = async (item, deleteFunction) => {
                     title: 'Sukces',
                     text: response.message,
                 }).then(() => {
-                    // revalidate();
+                     revalidate();
                 });
             } else {
                 Swal.fire('Błąd!', response.message, 'error');

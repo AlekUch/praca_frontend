@@ -16,16 +16,18 @@ import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
 const Table = ({ columns,
         rows,
-        onEdit, // Funkcja dynamiczna do obsługi edycji
-        onArchive, // Funkcja dynamiczna do obsługi archiwizacji
+        onEdit, 
+        onArchive,
+        onDelete,
+        auth,
     archivalField ,
-    title,    // Nazwa pola odpowiadającego za status archiwizacji
+    title,    
     }) => {
-    // Dodajemy kolumnę akcji dynamicznie
-    const actionColumn = {
+
+    const actionColumn = auth ? {
         field: "actions",
         headerName: "",
-        minWidth:110,
+        minWidth:  onEdit && onArchive && onDelete ? 170: 110 ,
         sortable: false,
         renderCell: (params) => {
             const data = params.row.originalData; // Pobieramy oryginalny obiekt danych
@@ -45,6 +47,7 @@ const Table = ({ columns,
                     </>
                 );
             }
+
             if (!data || !(archivalField in data)) {
                 return (
                     <>
@@ -57,7 +60,7 @@ const Table = ({ columns,
                             </IconButton>
                         </Tooltip>
                         <Tooltip title="Usuń">
-                            <IconButton onClick={() => onArchive(data, true)}> {/* Wywołujemy dynamiczną funkcję archiwizacji */}
+                            <IconButton onClick={() => onDelete(data)}> {/* Wywołujemy dynamiczną funkcję archiwizacji */}
                                 <DeleteIcon  style={{ color: "red" }} />
                             </IconButton>
                         </Tooltip>
@@ -82,6 +85,13 @@ const Table = ({ columns,
                             <ArchiveIcon style={{ color: "red" }} />
                         </IconButton>
                     </Tooltip>
+                    {onDelete &&
+                        <Tooltip title="Usuń">
+                            <IconButton onClick={() => onDelete(data)}> {/* Wywołujemy dynamiczną funkcję archiwizacji */}
+                                <DeleteIcon style={{ color: "red" }} />
+                            </IconButton>
+                        </Tooltip>
+                        }
                 </>
             ) : (
                 <Tooltip title="Cofnij archiwizację">
@@ -91,7 +101,8 @@ const Table = ({ columns,
                 </Tooltip>
             );
         },
-    };
+    }
+    :null;
     const [filterText, setFilterText] = useState('');
     const [filteredRows, setFilteredRows] = useState(rows);
     const [expandedRows, setExpandedRows] = useState({});
@@ -282,7 +293,7 @@ const Table = ({ columns,
                
             <DataGrid
                 rows={filteredRows}
-                columns={[...processedColumns, actionColumn]}
+                columns={[...processedColumns, ...(actionColumn ? [actionColumn] : [])]}
                 pageSizeOptions={[8, 16,24,32]}
                 selectionModel={[]}
                 disableSelectionOnClick={true}

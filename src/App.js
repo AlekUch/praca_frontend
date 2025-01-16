@@ -13,6 +13,7 @@ import ChemAgentDetailsPage, {loader as loaderChemDetails, action as actionChemD
 import DiseasePage, { loader as loaderDiseases, action as actionDiseases } from './pages/Disease';
 import DiseaseDetailsPage, { loader as loaderDiseaseDetails } from './pages/DiseaseDetails';
 import ChemicalTreatmentPage, { loader as loaderChemTreatment, action as actionChemTreatment } from './pages/ChemicalTreatment';
+import CalculatorPage, { loader as loaderCalculator } from './pages/Calculator.js';
 
 const router = createBrowserRouter([
     {
@@ -80,6 +81,13 @@ const router = createBrowserRouter([
                 element: <ChemicalTreatmentPage />,
                 loader: loaderChemTreatment,
                 action: actionChemTreatment,
+
+            },
+            {
+                path: "calculator",
+                element: <CalculatorPage />,
+                loader: loaderCalculator,
+               // action: actionChemTreatment,
 
             },
             //    children: [

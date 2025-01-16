@@ -5,21 +5,12 @@ import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
-import Card from 'react-bootstrap/Card';
 import Modal from 'react-bootstrap/Modal';
-import { Link } from "react-router-dom";
-import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
-import { useNavigate, useLoaderData, json, useSubmit, useActionData, useRevalidator } from 'react-router-dom';
-import Table from 'react-bootstrap/Table';
-import { OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { useLoaderData, json, useSubmit, useActionData, useRevalidator } from 'react-router-dom';
 import UniversalTable from '../components/Table';
-
-const renderTooltip = (message) => (
-    <Tooltip id="button-tooltip">{message}</Tooltip>
-);
-
-const MySwal = withReactContent(Swal);
+import useActionEffect from '../hooks/useActionEffect';
+import { isAdmin } from '../components/authUtil';
 
 function Plants() {
 
@@ -32,31 +23,12 @@ function Plants() {
     const actionData = useActionData();
     const { revalidate } = useRevalidator();
     const [rows, setRows] = useState([]);
-    useEffect(() => {
-        if (!actionData)
-            return;
-        if (actionData.status === 'success') {
-            Swal.fire({
-                icon: 'success',
-                title: 'Sukces',
-                text: actionData.message,
-            }).then(() => {
-                revalidate();
-                setShow(false);
-            });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Błąd',
-                text: actionData.message,
-            });
-        }
-    }, [actionData]
-    );
+
+    useActionEffect(actionData, revalidate, setShow);
 
     useEffect(() => {
         if (data && Array.isArray(data)) {
-            console.log("Data:", data);
+            
             const mappedRows = data.map((item) => ({
                 id: item.plantId,
                 name: item.name,
@@ -70,8 +42,8 @@ function Plants() {
     }, [data]);
 
     const columns = [
-        { field: 'name', headerName: 'Roślina', minWidth: 500, headerAlign: 'center' },
-        { field: 'rotationPeriod', headerName: 'Okres zmianowania', minWidth: 450, headerAlign: 'center' },    
+        { field: 'name', headerName: 'Roślina', frlx:1,minWidth: 500, headerAlign: 'center' },
+        { field: 'rotationPeriod', headerName: 'Okres zmianowania', flrx:1, minWidth: 450, headerAlign: 'center' },    
     ];
     const handleShow = () => setShow(true);
 
@@ -90,7 +62,7 @@ function Plants() {
             setValidated(true);
         } else {
             const formData = new FormData(form);
-            console.log(editMode);
+           
 
             if (editMode) {
                 // Prześlij żądanie PUT
@@ -158,7 +130,7 @@ function Plants() {
                     </div>
                 <div className="row">
                     <div className="col d-flex justify-content-end">
-                        <Button variant="danger" size="lg" onClick={handleShow}>Dodaj nową roślinę</Button>
+                            {isAdmin() && <Button variant="danger" size="lg" onClick={handleShow}>Dodaj nową roślinę</Button>}
                         </div>
                     </div>
                 </div>
@@ -169,6 +141,7 @@ function Plants() {
                         rows={rows}
                         onEdit={handleEdit} // Funkcja obsługująca edycję
                         onArchive={handleArchive} // Funkcja obsługująca archiwizację
+                        auth={isAdmin()}
                         archivalField="archival" // Nazwa pola archiwizacji (dynamiczne)
                     />
                 </div>
@@ -254,8 +227,7 @@ export async function action({ request, params }) {
     const formObject = Object.fromEntries(data.entries());
 
     const method = request.method;
-    console.log(request
-        .method);
+   
     // URL bazowy
     let url = 'https://localhost:44311/agrochem/plants';
 
@@ -264,7 +236,7 @@ export async function action({ request, params }) {
         const id = formObject.id; // Zakładamy, że ID jest w formularzu
         url = `${url}/${id}`;
     }
-    console.log(method);
+  
     try {
     const response = await fetch(url, {
         method: method,
@@ -291,7 +263,7 @@ export async function action({ request, params }) {
 export async function archivePlant(plantId, isArchiving) {
     const token = localStorage.getItem("token");
     const url = `https://localhost:44311/agrochem/plants/archive/${plantId}?archive=${isArchiving}`;
-    console.log(isArchiving);
+    
     try {
         const response = await fetch(url, {
             method: 'PUT',

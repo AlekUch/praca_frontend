@@ -20,21 +20,31 @@ const DiseaseDetails = () => {
         <>
             <div class="pb-5 ">
                 <div className={classes.container}>
-                    <div class="row">
-                        <div class="col-6">                          
-                            <Card className="text-center" style={{ minHeight:"300px",  margin: 'auto', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', overflow: 'hidden' }}>
+                    <div class="row" style={{ justifyContent:"center" }}>
+                        <div class="col-8" > 
+                            <Card className="text-center" style={{ minHeight: "100px", margin: 'auto', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', overflow: 'hidden' }}>
 
-                                <Card.Body style={{ borderRadius: '10px', backgroundColor: "#699ff1" } }>
-                                    <Card.Title className={classes.cardTitle}>{data.name}</Card.Title>
+                                <Card.Body style={{ borderRadius: '10px' }}>
+                                    <Card.Title  className="display-4"><b>{data.name}</b></Card.Title>
                                     <Card.Text className={classes.cardText}>
-                                        <p style={{ color: 'black', fontSize: '16px', textAlign: 'center' }}><b> Atakowane rośliny:</b> {data.plantDiseases}</p>
+                                        <p style={{ color: 'black', fontSize: '16px', textAlign: 'center' }} ><b> Atakowane rośliny:</b> {data.plantDiseases}</p>
                                         <p style={{ color: 'black', fontSize: '16px', textAlign: 'center' }}><b> Przyczyna:</b> {data.reasons}</p>
-                                        </Card.Text>
+                                    </Card.Text>
 
                                 </Card.Body>
                             </Card>
+                            <Card className="text-center" style={{ margin: 'auto',marginTop:"3%", borderRadius: '10px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', overflow: 'hidden' }}>
+                                <Card.Body style={{ padding: "0" }}>
+                                    <Card.Img
+                                        variant="top"
+                                        src={data.photo}
+                                        style={{ height: '400px', objectFit: 'cover' }}
+                                    />
+                                </Card.Body>
+                            </Card>
+                            
                                        
-                            <Card className="text-center" style={{ marginTop: "10px",  borderRadius: '10px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', overflow: 'hidden' }}>
+                            <Card className="text-center" style={{ marginTop: "3%",  borderRadius: '10px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', overflow: 'hidden' }}>
 
                                 <Card.Body >
                                     <Card.Title className={classes.cardTitle}>Charakterystyka</Card.Title>
@@ -45,21 +55,7 @@ const DiseaseDetails = () => {
 
                                 </Card.Body>
                             </Card>     
-                               
-
-                            
-                        </div>
-                        <div class="col-6">
-                            <Card className="text-center" style={{  margin: 'auto', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', overflow: 'hidden' }}>
-                                <Card.Body style={{padding:"0"} }>
-                                    <Card.Img
-                                        variant="top"
-                                        src={data.photo}
-                                        style={{ height: '300px', objectFit: 'cover' }}
-                                    />
-                                </Card.Body>
-                            </Card>
-                            <Card className="text-center" style={{ marginTop: "10px",  borderRadius: '10px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', overflow: 'hidden' }}>
+                            <Card className="text-center" style={{ marginTop: "3%", borderRadius: '10px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', overflow: 'hidden' }}>
 
                                 <Card.Body >
                                     <Card.Title className={classes.cardTitle}>Zwalczanie</Card.Title>
@@ -69,8 +65,11 @@ const DiseaseDetails = () => {
                                     </Card.Text>
 
                                 </Card.Body>
-                            </Card>  
+                            </Card>     
+
+                            
                         </div>
+                       
                     </div>
                    
                 </div>
@@ -93,7 +92,7 @@ export async function loader({params }) {
     });
     if (!response.ok) {
         const result = await response.json();
-        console.log(result);
+       
         return { isError: true, message: result.message }
     } else {
         return await response.json();

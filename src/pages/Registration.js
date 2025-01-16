@@ -58,12 +58,10 @@ function Registration() {
 
         if (form.checkValidity() === false) {           
             event.stopPropagation();
-            console.log("Formularz nie jest poprawny.");
+           
         }else{
             const formData = new FormData(form);
-            for (let [key, value] of formData.entries()) {
-                console.log(`${key}: ${value}`);
-            }
+            
             try {
                 const response = await fetch('https://localhost:44311/agrochem/register', {
                   method: 'POST',
@@ -75,7 +73,7 @@ function Registration() {
 
                 const result = await response.json();
                 if (response.ok) {
-                    console.log(result.message);
+                    
                     MySwal.fire({
                         title: 'Sukces!',
                         text: result.message,
@@ -88,7 +86,7 @@ function Registration() {
 
                     });
                 } else {
-                    console.log(result.message);
+                   
                     MySwal.fire({
                         title: 'Błąd!',
                         text: result.message,
@@ -98,7 +96,7 @@ function Registration() {
                 }
                
             } catch (error) {
-                console.log(error.message);
+               
                 MySwal.fire({
                     title: 'Błąd!',
                     text: 'Nieoczekiwany błąd serwera',

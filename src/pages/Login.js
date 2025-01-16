@@ -37,7 +37,7 @@ function Login() {
 
         if (form.checkValidity() === false) {
             event.stopPropagation();
-            console.log("Formularz nie jest poprawny.");
+           
         } else {
             const formData = new FormData(form);
 
@@ -57,7 +57,7 @@ function Login() {
                     const decodedToken = jwtDecode(result.token); // Dekoduj token
                     const role = decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
                     localStorage.setItem('role', role);
-                    console.log(role);
+                   
                     MySwal.fire({
                         title: 'Sukces!',
                         text: "Zalogowano pomyślnie",
@@ -70,7 +70,7 @@ function Login() {
 
                     });
                 } else {
-                    console.log(result.message);
+                   
                     MySwal.fire({
                         title: 'Błąd!',
                         text: result.message,
@@ -80,7 +80,7 @@ function Login() {
                 }
 
             } catch (error) {
-                console.log(error.message);
+               
                 MySwal.fire({
                     title: 'Błąd!',
                     text: 'Nieoczekiwany błąd serwera',

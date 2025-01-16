@@ -1,25 +1,17 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import classes from './Disease.module.css';
 import { useState, useEffect, useRef } from 'react';
-import { Form, Row, Col, Dropdown, Button, Card } from 'react-bootstrap';
+import { Form, Row, Col, Button } from 'react-bootstrap';
 import Modal from 'react-bootstrap/Modal';
-import { Link } from "react-router-dom";
-import withReactContent from 'sweetalert2-react-content';
-import Swal from 'sweetalert2';
 import { useNavigate, useLoaderData, json, useSubmit, useActionData, useRevalidator } from 'react-router-dom';
-import Table from 'react-bootstrap/Table';
-import { OverlayTrigger, Tooltip, DropdownButton } from 'react-bootstrap';
-import { format } from 'date-fns';
+import {  DropdownButton } from 'react-bootstrap';
 import UniversalTable from '../components/Table';
-import handleDelete from '../components/DeleteHandler';
+import deleteHandler from '../components/DeleteHandler';
 import { Visibility } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
-
-const renderTooltip = (message) => (
-    <Tooltip id="button-tooltip">{message}</Tooltip>
-);
-
-const MySwal = withReactContent(Swal);
+import useActionEffect from '../hooks/useActionEffect';
+import Swal from 'sweetalert2';
+import { isAdmin } from '../components/authUtil';
 
 function Disease() {
     const [show, setShow] = useState(false);
@@ -45,28 +37,8 @@ function Disease() {
         plantDisease: [], // Tablica na ID wybranych produktów
     });
     
-
-    useEffect(() => {
-        if (!actionData)
-            return;
-        if (actionData.status === 'success') {
-            Swal.fire({
-                icon: 'success',
-                title: 'Sukces',
-                text: actionData.message,
-            }).then(() => {
-                revalidate();
-                setShow(false);
-            });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Błąd',
-                text: actionData.message,
-            });
-        }
-    }, [actionData, revalidate]
-    );
+    useActionEffect(actionData, revalidate, setShow);
+    
     useEffect(() => {
         // Pobierz listę produktów z backendu
         const fetchPlants = async () => {
@@ -96,7 +68,7 @@ function Disease() {
 
     useEffect(() => {
         if (data && Array.isArray(data)) {
-            console.log("Data:", data);
+          
             const mappedRows = data.map((item) => ({
                 id: item.diseaseId,
                 name: item.name,
@@ -128,7 +100,7 @@ function Disease() {
     
     const columns = [
         { field: 'name', headerName: 'Nazwa', minWidth: 200, headerAlign: 'center' },
-        { field: 'characteristic', headerName: 'Charakterystyka', minWidth: 200, headerAlign: 'center' },
+        { field: 'characteristic', headerName: 'Charakterystyka', flex:1,minWidth: 200, headerAlign: 'center' },
         { field: 'reasons', headerName: 'Przyczyna', minWidth: 200, headerAlign: 'center' },
         { field: "plantDiseases", headerName: "Atakowane rośliny", minWidth: 200, headerAlign: 'center' },
         { field: "prevention", headerName: "Zwalczanie", minWidth:200, headerAlign: "center" },
@@ -148,7 +120,6 @@ function Disease() {
         event.preventDefault();
         const form = event.currentTarget;
 
-        // Przeprowadzenie walidacji formularza
         if (form.checkValidity() === false) {
             event.stopPropagation();
             setValidated(true);
@@ -157,82 +128,64 @@ function Disease() {
             data.set("Characteristic", formData.characteristic || "");
             data.set("Name", formData.name || "");
             data.set("Reasons", formData.reasons || "");
-           
-            console.log(data.file);
-
             formData.plantDisease.forEach((id) => {
                 data.append("PlantDisease", id);
             });
-            
-            console.log(formData.name);
-            console.log("FormData (raw):");
-            for (let pair of data.entries()) {
-                console.log(`${pair[0]}:`, `${pair[1]}`);
-            }
+
+            const token = localStorage.getItem("token");
+            let url = 'https://localhost:44311/agrochem/disease';
+            let method = "POST";
 
             if (editMode) {
-                try {
-                    const token = localStorage.getItem("token");
-                    const response = await fetch(`https://localhost:44311/agrochem/disease/${selectedDisease.diseaseId}`, {
-                        method: "PUT",
-                        headers: {
-                            // 'Content-Type': 'application/json',
-                            Authorization: `Bearer ${token}`
-                        },
-                        body: data,
-                    });
-
-                    if (!response.ok) {
-                        const result = await response.json();
-                        return json({ status: 'error', message: result.message }, { status: response.status });
-                    } else {
-                        const result = await response.json();
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Sukces',
-                            text: result.message,
-                        }).then(() => {
-                            revalidate();
-                            setShow(false);
-                        });
-                    }
-                } catch (error) {
-                    return json({ status: 'error', message: error.message }); // Wyświetl błąd
-
-                }
-            } else {
-                try {
-                    const token = localStorage.getItem("token");
-                    const response = await fetch('https://localhost:44311/agrochem/disease', {
-                        method: "POST",
-                        headers: {
-                            // 'Content-Type': 'application/json',
-                            Authorization: `Bearer ${token}`
-                        },
-                        body: data,
-                    });
-
-                    if (!response.ok) {
-                        const result = await response.json();
-                        return json({ status: 'error', message: result.message }, { status: response.status });
-                    } else {
-                        const result = await response.json();
-                        return json({ status: 'success', message: result.message }, { status: 200 });
-                    }
-                } catch (error) {
-                    return json({ status: 'error', message: error.message }); // Wyświetl błąd
-
-                }
+                url = `${url}/${selectedDisease.diseaseId}`;
+                method = 'PUT';
             }
-            handleClose();
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        // 'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: data,
+                });
+
+                if (!response.ok) {
+                    const result = await response.json();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Błąd',
+                        text: result.message,
+                    }).then(() => {
+                        
+                         setShow(false);
+                    });
+                } else {
+                    
+                    const result = await response.json();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Sukces',
+                        text: result.message,
+                    }).then(() => {
+                         revalidate();
+                         setShow(false);
+                    });
+                }
+
+            } catch (error) {
+                return json({ status: 'error', message: error.message }); // Wyświetl błąd
+
+            }
         }
+        handleClose();
     };
+
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
-        console.log(name, value);
-        console.log(formData);
+       
     };
 
     const handleFileChange = (e) => {
@@ -289,8 +242,8 @@ function Disease() {
         setPreview(null);
         setShow(false);
     };
-    const handleArchive = (disease) => {
-        handleDelete(disease.diseaseId, deleteDisease);
+    const handleDelete = (disease) => {
+        deleteHandler(disease.diseaseId, deleteDisease, revalidate);
     }
 
     const renderSelectedPlants = () =>
@@ -300,21 +253,26 @@ function Disease() {
 
     return (
         <>
-            <div style={{ width: '100%' }} className="p-5 text-center bg-body-tertiary ">
-                <p className="display-4">Choroby roślin</p>
+            <div style={{ width: '100%' }} className="p-3 text-center bg-body-tertiary ">
+                <div className={classes.containerTop} >
+                    <div className={classes.containerTitle} >
+                        <p className="display-4"><b>Choroby roślin</b></p>
+                    </div>
                 <div class="row">
                     <div className="col d-flex justify-content-end">
-                        <Button variant="danger" size="lg" onClick={handleShow}>Dodaj nową chorobę</Button>
+                            {isAdmin() && <Button variant="danger" size="lg" onClick={handleShow}>Dodaj nową chorobę</Button>}
+                        </div>
                     </div>
                 </div>
                 <div className={classes.container}>
-                    {console.log("Rendering table with rows:", rows)}
+                   
                     <UniversalTable
                         key={JSON.stringify(rows)}
                         columns={columns}
                         rows={rows}
                         onEdit={handleEdit} // Funkcja obsługująca edycję
-                        onArchive={handleArchive} // Funkcja obsługująca archiwizację
+                        onDelete={handleDelete} // Funkcja obsługująca archiwizację
+                        auth={isAdmin()}
                         archivalField="archival" // Nazwa pola archiwizacji (dynamiczne)
                         title="Choroby roślin"
                     />
@@ -483,7 +441,7 @@ export async function loader() {
     });
     if (!response.ok) {
         const result = await response.json();
-        console.log(result);
+       
         return { isError: true, message: result.message }
     } else {
         return await response.json();
@@ -500,12 +458,7 @@ export async function action({ request, params }) {
   
     const file = data.get("file");
 
-    if (file && file instanceof File) {
-        console.log("File Name:", file.name);
-        console.log("File Type:", file.type);
-        console.log("File Size:", file.size);
-    }
-    // Iteracja przez FormData
+   
     data.forEach((value, key) => {
         // Specjalna obsługa dla PlantDisease
         if (key === "PlantDisease") {
@@ -518,41 +471,19 @@ export async function action({ request, params }) {
         }
     });
 
-    
-
-    // Konwersja PlantDisease na liczby
     if (formObject.PlantDisease) {
         formObject.PlantDisease = formObject.PlantDisease.map((id) => parseInt(id, 10));
     }
-    //if (formObject.PlantDisease) {
-    //    if (!Array.isArray(formObject.PlantDisease)) {
-    //        // Jeśli PlantDisease nie jest tablicą, przekształcamy w tablicę
-    //        formObject.PlantDisease = [formObject.PlantDisease];
-    //        console.log("aaa");
-    //    }
-
-    //    // Konwersja wszystkich wartości na liczby całkowite (int)
-    //    formObject.PlantDisease = formObject.PlantDisease.map((item) =>
-    //        parseInt(item, 10)
-    //    );
-    //}
-
+   
     const method = request.method;
-    console.log(request
-        .method);
-    console.log(data);
-    for (let pair of data.entries()) {
-        console.log(`${pair[0]}:`, `${pair[1]}`);
-    }
-    // URL bazowy
+ 
     let url = 'https://localhost:44311/agrochem/disease';
 
-    // Jeśli to metoda PUT, dodaj ID użytkownika do URL
     if (method === 'PUT') {
-        const id = formObject.id; // Zakładamy, że ID jest w formularzu
+        const id = formObject.id; 
         url = `${url}/${id}`;
     }
-    console.log(method);
+  
     try {
         const response = await fetch(url, {
             method: method,
@@ -571,7 +502,7 @@ export async function action({ request, params }) {
             return json({ status: 'success', message: result.message }, { status: 200 });
         }
     } catch (error) {
-        return json({ status: 'error', message: error.message }); // Wyświetl błąd
+        return json({ status: 'error', message: error.message }); 
 
     }
  }

@@ -5,15 +5,13 @@ import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
-import Card from 'react-bootstrap/Card';
 import Modal from 'react-bootstrap/Modal';
-import { Link } from "react-router-dom";
-import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
-import { useNavigate, useLoaderData, json, useSubmit, useActionData, useRevalidator } from 'react-router-dom';
+import {  useLoaderData, json, useSubmit, useActionData, useRevalidator } from 'react-router-dom';
 import UniversalTable from '../components/Table';
+import useActionEffect from '../hooks/useActionEffect';
+import archiveHandler from '../components/ArchiveHandler';
 
-const MySwal = withReactContent(Swal);
 
 function Plots() {
 
@@ -26,30 +24,12 @@ function Plots() {
     const actionData = useActionData();
     const { revalidate } = useRevalidator();
     const [rows, setRows] = useState([]);
-    useEffect(() => {
-        if (!actionData)
-            return;
-        if (actionData.status === 'success') {
-            Swal.fire({
-                icon: 'success',
-                title: 'Sukces',
-                text: actionData.message,
-            }).then(() => {
-                revalidate();
-                setShow(false);
-            });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Błąd',
-                text: actionData.message,
-            });
-        }
-    }, [actionData]
-    );
+
+    useActionEffect(actionData, revalidate, setShow);
+
     useEffect(() => {
         if (data && Array.isArray(data)) {
-            console.log("Data:", data);
+            
             const mappedRows = data.map((item) => ({
                 id: item.plotId,
                 plotNumber: item.plotNumber,
@@ -69,18 +49,15 @@ function Plots() {
     }
 
     const columns = [
-        { field: 'plotNumber', headerName: 'Numer działki',  flex: 1, headerClassName: 'super-app-theme--header' },
-        { field: 'area', headerName: 'Powierzchnia [ha]',  flex: 1, },
-        { field: 'location', headerName: 'Miejscowość',  flex: 1, },
-        { field: 'district', headerName: 'Gmina',  flex: 1, },
-        { field: 'voivodeship', headerName: 'Województwo',  flex: 1 },
+        { field: 'plotNumber', headerName: 'Numer działki', flex: 1, minWidth: 200 },
+        { field: 'area', headerName: 'Powierzchnia [ha]', flex: 1, minWidth: 200, headerAlign: 'center' },
+        { field: 'location', headerName: 'Miejscowość', flex: 1, minWidth: 200, headerAlign: 'center' },
+        { field: 'district', headerName: 'Gmina', flex: 1, minWidth: 200, headerAlign: 'center' },
+        { field: 'voivodeship', headerName: 'Województwo', flex: 1, minWidth: 200, headerAlign: 'center' },
         
     ];
     
     
-
-   
- 
     const handleShow = () => setShow(true);
   
     const handleSubmit = (event) => {
@@ -91,9 +68,7 @@ function Plots() {
             event.stopPropagation();
             setValidated(true);
         } else {
-            const formData = new FormData(form);
-            console.log(editMode);
-
+            const formData = new FormData(form);            
             if (editMode) {
 
                 formData.append('id', selectedPlot.plotId); 
@@ -104,8 +79,7 @@ function Plots() {
             handleClose();
         }
     };
-
-    
+  
     const handleEdit = (plot) => {
         setEditMode(true); 
         setSelectedPlot(plot); 
@@ -119,43 +93,20 @@ function Plots() {
     };
 
     const handleArchive = (plot, isArchiving) => {
-        Swal.fire({
-            title: `Czy na pewno chcesz ${isArchiving ? 'zarchiwizować działkę'  : 'cofnąć archiwizację'}?`,
-            text: `${isArchiving ? 'Po archiwizacji wszelkie operacje dla tej działki będą niedostępne!' :'Wszystkie operacje dla działki będą dostępne'}`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: `${isArchiving ? 'Zarchiwizuj!' : 'Cofnij archiwizację'}`,
-            cancelButtonText: 'Anuluj'
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-
-                const response = await archivePlot(plot.plotId, isArchiving);
-
-                if (response.status === 'success') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Sukces',
-                        text: response.message,
-                    }).then(() => {
-                        revalidate();
-                    });
-                } else {
-                    Swal.fire('Błąd!', response.message, 'error');
-                }
-            }
-        });
+        archiveHandler(plot.plotId, isArchiving, archivePlot, revalidate);
     };
-
    
         return (
             <>
-                <div style={{ width: '100%' }} className="p-5 text-center bg-body-tertiary ">
-                    <p className="display-4">Moje działki</p>
+                <div style={{ width: '100%' }} className="p-3 text-center bg-body-tertiary ">
+                    <div className={classes.containerTop} >
+                        <div className={classes.containerTitle} >
+                            <p className="display-4">Moje działki</p>
+                    </div>
                     <div class="row">
                         <div className="col d-flex justify-content-end">
                             <Button variant="danger" size="lg" onClick={handleShow}>Dodaj nową działkę</Button>
+                            </div>
                         </div>
                     </div>
                     <div className={classes.container}>
@@ -165,6 +116,7 @@ function Plots() {
                             rows={rows}
                             onEdit={handleEdit} // Funkcja obsługująca edycję
                             onArchive={handleArchive} // Funkcja obsługująca archiwizację
+                            auth="true"
                             archivalField="archival" // Nazwa pola archiwizacji (dynamiczne)
                         />
                      
@@ -275,7 +227,7 @@ function Plots() {
 export default Plots;
 export async function loader() {
     const token = localStorage.getItem("token");
-    const response = await fetch(`https://localhost:44311/agrochem/plots`, {
+    const response = await fetch(`https://localhost:44311/agrochem/plots?isArchive=true`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,  // Przekazujemy token w nagłówku
@@ -295,8 +247,7 @@ export async function action({request, params}) {
     const formObject = Object.fromEntries(data.entries());
 
     const method = request.method;
-    console.log(request
-        .method);
+   
     // URL bazowy
     let url = 'https://localhost:44311/agrochem/plots';
 
@@ -305,7 +256,7 @@ export async function action({request, params}) {
         const id = formObject.id; // Zakładamy, że ID jest w formularzu
         url = `${url}/${id}`;
     }
-    console.log(method);
+   
     const response = await fetch(url, {
         method: method,
         headers: {
@@ -316,7 +267,7 @@ export async function action({request, params}) {
     });
 
     const result = await response.json();
-    console.log(result.message);
+    
     if (!response.ok) {     
         return json({ status:'error',message: result.message }, { status: response.status });
     }
@@ -327,7 +278,7 @@ export async function action({request, params}) {
 export async function archivePlot(plotId, isArchiving) {
     const token = localStorage.getItem("token");
     const url = `https://localhost:44311/agrochem/plots/archive/${plotId}?archive=${isArchiving}`;
-    console.log(isArchiving);
+  
     try {
         const response = await fetch(url, {
             method: 'PUT', 

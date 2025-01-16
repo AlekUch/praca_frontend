@@ -1,8 +1,8 @@
 import Swal from 'sweetalert2';
-const handleArchive = async (item, isArchiving, archiveFunction) => {
+const handleArchive = async (item, isArchiving, archiveFunction, revalidate) => {
 	Swal.fire({
             title: `Czy na pewno chcesz ${isArchiving ? 'zarchiwizować informację' : 'cofnąć archiwizację'}?`,
-            text: `${isArchiving ? 'Po archiwizacji ta informacja nie będzie dostępna dla użytkowników!' : ''}`,
+            text: `${isArchiving ? 'Po archiwizacji nie można edytować tej informacji!' : ''}`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
@@ -18,7 +18,7 @@ const handleArchive = async (item, isArchiving, archiveFunction) => {
                         title: 'Sukces',
                         text: response.message,
                     }).then(() => {
-                       // revalidate();
+                        revalidate();
                     });
                 } else {
                     Swal.fire('Błąd!', response.message, 'error');

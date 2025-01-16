@@ -5,16 +5,17 @@ import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import { useState, useEffect } from 'react';
 import classes from './MainNavigation.module.css';
+import { isAdmin } from '../components/authUtil';
+
 function MainNavigation() {
     const [user, setUser] = useState(null);
-    const [role, setRole] = useState(null);
     const navigate = useNavigate();
     useEffect(() => {
         const loggedInUser = localStorage.getItem('user'); // Możesz tu trzymać np. imię/nazwisko lub email
-        console.log(loggedInUser);
+        
         if (loggedInUser) {
             setUser(loggedInUser); // Ustaw użytkownika jeśli jest zalogowany
-            setRole(localStorage.getItem('role'));
+           
         }
     }, []);
 
@@ -23,7 +24,6 @@ function MainNavigation() {
         localStorage.removeItem('user');  // Usuń informacje o użytkowniku
         localStorage.removeItem('role');
         setUser(null); // Zresetuj stan użytkownika
-        setRole(null);
         navigate('/login'); // Przekierowanie do strony logowania
     };
 
@@ -31,38 +31,45 @@ function MainNavigation() {
         <>
             <Navbar collapseOnSelect expand="lg"   className={classes.nav} >
                 <Container >
-                <Navbar.Brand href="#home">AGROCHEM</Navbar.Brand>
+                <Navbar.Brand href="/">AGROCHEM</Navbar.Brand>
                 <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                 <Navbar.Collapse id="responsive-navbar-nav">
                     <Nav className="me-auto">
-                    {/*    <Nav.Link href="#features">Features</Nav.Link>*/}
-                    {/*    <Nav.Link href="#pricing">Pricing</Nav.Link>*/}
-                    {/*    <NavDropdown title="Dropdown" id="collapsible-nav-dropdown">*/}
-                    {/*        <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>*/}
-                    {/*        <NavDropdown.Item href="#action/3.2">*/}
-                    {/*            Another action*/}
-                    {/*        </NavDropdown.Item>*/}
-                    {/*        <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>*/}
-                    {/*        <NavDropdown.Divider />*/}
-                    {/*        <NavDropdown.Item href="#action/3.4">*/}
-                    {/*            Separated link*/}
-                    {/*        </NavDropdown.Item>*/}
-                    {/*    </NavDropdown>*/}
+                    
                     </Nav>
                         <Nav>
                             {user ? (
-                                <>
-                                    <Nav.Link style={{ float: 'left' }} href="/plants">Rośliny</Nav.Link>
-                                    <Nav.Link style={{ float: 'left' }} href="/diseases">Choroby roślin</Nav.Link>
-                                    <Nav.Link style={{ float: 'left' }} href="/chemicalagents">Środki chemiczne</Nav.Link>
-                                    <Nav.Link style={{ float: 'left' }} href="/chemicaltreatment">Zabiegi chemiczne</Nav.Link>
-                                    <Nav.Link style={{ float: 'left' }} href="/plots">Działki</Nav.Link>
-                                    <Nav.Link style={{ float: 'left' }} href="/cultivations">Uprawy</Nav.Link>
-                                    <Nav.Link style={{ float: 'rigth' }} href="/">Witaj, {user}!</Nav.Link>
-                                    <Nav.Link style={{ float: 'rigth' }} onClick={handleLogout}>Wyloguj</Nav.Link>
+                                isAdmin() ?
+                                    (<>
+                                        <NavDropdown title="Zarządzaj" id="collapsible-nav-dropdown">
+                                            <Nav.Link  href="/plants">Rośliny</Nav.Link>
+                                            <Nav.Link  href="/diseases">Choroby roślin</Nav.Link>
+                                            <Nav.Link  href="/chemicalagents">Środki chemiczne</Nav.Link>
+                                           
+                                        </NavDropdown>
 
+
+                                        <Nav.Link style={{ float: 'rigth' }} href="/">Witaj, {user}!</Nav.Link>
+                                        <Nav.Link style={{ float: 'rigth' }} onClick={handleLogout}>Wyloguj</Nav.Link>
+                                    </>) 
+                                    :
+                                    (<>
+                                        <NavDropdown title="Zarządzaj" id="collapsible-nav-dropdown">
+                                            <Nav.Link href="/plots">Działki</Nav.Link>
+                                            <Nav.Link href="/cultivations">Uprawy</Nav.Link>
+                                            <Nav.Link href="/chemicaltreatment">Zabiegi chemiczne</Nav.Link>
+                                            <Nav.Link href="/calculator">Kalulator oprysku</Nav.Link>
+                                        </NavDropdown>
+
+                                        <NavDropdown title="Informacje" id="collapsible-nav-dropdown">
+                                            <Nav.Link  href="/chemicalagents">Środki chemiczne</Nav.Link>
+                                            <Nav.Link  href="/diseases">Choroby roślin</Nav.Link>
+                                            <Nav.Link  href="/plants">Rośliny</Nav.Link>
+                                        </NavDropdown>
+                                        <Nav.Link style={{ float: 'rigth' }} href="/">Witaj, {user}!</Nav.Link>
+                                        <Nav.Link style={{ float: 'rigth' }} onClick={handleLogout}>Wyloguj</Nav.Link>
+                                    </>)
                                    
-                                </>
                             ) : (
                                 <>
                                         <Nav.Link style={{ float: 'right' }} href="/registration">Zarejestruj</Nav.Link>

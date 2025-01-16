@@ -1,19 +1,13 @@
 import classes from './ChemicalAgentDetails.module.css';
 import React from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Form, Row, Col, Dropdown, Button, Card, Table, Modal, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import withReactContent from 'sweetalert2-react-content';
-import Swal from 'sweetalert2';
+import { Form, Row, Col, Dropdown, Button, Card,  Modal } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
-import { useNavigate, useLoaderData, json, useSubmit, useActionData, useRevalidator, useParams } from 'react-router-dom';
-import { useLocation } from "react-router-dom";
-import { useRouteLoaderData } from "react-router";
+import { useLoaderData, json, useSubmit, useActionData, useRevalidator, useParams } from 'react-router-dom';
 import UniversalTable from '../components/Table';
-const renderTooltip = (message) => (
-    <Tooltip id="button-tooltip">{message}</Tooltip>
-);
-
-const MySwal = withReactContent(Swal);
+import useActionEffect from '../hooks/useActionEffect';
+import archiveHandler from '../components/ArchiveHandler';
+import { isAdmin } from '../components/authUtil';
 
 const ChemicalAgentDetails = () => {
     const [show, setShow] = useState(false);
@@ -23,7 +17,7 @@ const ChemicalAgentDetails = () => {
     const submit = useSubmit();
     const actionData = useActionData();
     const [showDropdown, setShowDropdown] = useState(false);
-    const { plants, chemicalUses, isError, message, name, type, description } = useLoaderData();
+    const { plants, chemicalUses, isError, message, name, type, description, photo } = useLoaderData();
     const [filteredPlants, setFilteredPlants] = useState(plants);
     const [selectedPlant, setSelectedPlant] = useState(null);
     const [selectedChemUse, setSelectedChemUse] = useState(null);
@@ -31,32 +25,11 @@ const ChemicalAgentDetails = () => {
     const { revalidate } = useRevalidator();
     const [rows, setRows] = useState([]);
 
-
-    useEffect(() => {
-        if (!actionData)
-            return;
-        if (actionData.status === 'success') {
-            Swal.fire({
-                icon: 'success',
-                title: 'Sukces',
-                text: actionData.message,
-            }).then(() => {
-                revalidate();
-                setShow(false);
-            });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Błąd',
-                text: actionData.message,
-            });
-        }
-    }, [actionData]
-    );
+    useActionEffect(actionData, revalidate, setShow);
 
     useEffect(() => {
         if (chemicalUses && Array.isArray(chemicalUses)) {
-            console.log("Data:", chemicalUses);
+           
             const mappedRows = chemicalUses.map((item) => ({
                 id: item.chemUseId,
                 plantName: item.plantName,
@@ -69,7 +42,7 @@ const ChemicalAgentDetails = () => {
                 originalData: item, 
             }));
 
-            setRows(mappedRows); // Ustawiamy dane w stanie
+            setRows(mappedRows); 
 
         }
     }, [chemicalUses]);
@@ -86,8 +59,7 @@ const ChemicalAgentDetails = () => {
         { field: "minDays", headerName: "Ponownie min[dni]", minWidth: 140, headerAlign: 'center' },
         { field: "maxDays", headerName: "Ponownie max[l]", minWidth: 140, headerAlign: 'center' },
     ];
-
-   
+  
     const handleShow = () => setShow(true);
 
     const handleClose = () => {
@@ -102,10 +74,9 @@ const ChemicalAgentDetails = () => {
 
     const handleSelectPlant = (plant) => {
         setSelectedPlant(plant);
-        setSearchTerm(plant.name); // Ustaw nazwę w polu tekstowym
-        setShowDropdown(false); // Zamknięcie dropdownu
+        setSearchTerm(plant.name); 
+        setShowDropdown(false); 
     };
-
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -114,92 +85,30 @@ const ChemicalAgentDetails = () => {
             event.stopPropagation();
             setValidated(true);
         } else {
-            const formData = new FormData(form);
-            console.log(editMode);
-            
+            const formData = new FormData(form);           
             formData.append('chemAgentId', id);
             formData.append('plantId', Number(selectedPlant.plantId));
-
-            console.log(formData);
+          
             if (editMode) {
-
-                formData.append('id', selectedChemUse.chemUseId); // Ustaw identyfikator użytkownika
+                formData.append('id', selectedChemUse.chemUseId); 
                 submit(formData, { method: 'PUT' });
             } else {
                 submit(formData, { method: 'POST' });
             }
-            handleClose();
-            //if (editMode) {
-            //    // Prześlij żądanie PUT
-            //    const dataToSend = {
-            //        area: inputValue,
-            //        sowingDate: dateValue,
-            //        plotId: selectedPlot,
-            //        plantId: Number(selectedPlant.plantId),
-            //        cultivationId: selectedCultivation.cultivationId
-            //    };
-            //    submit(dataToSend, { method: 'PUT' });
-            //} else {
-            //    // Prześlij żądanie POST
-            //    const dataToSend = {
-            //        area: inputValue,
-            //        sowingDate: dateValue,
-            //        plotId: selectedPlot,
-            //        plantId: selectedPlant.plantId
-            //    };
-            //  submit(dataToSend, { method: 'POST' });
-            // }
-
-            //handleClose();
-
+            handleClose();          
         }
     };
    
     const handleEdit = (chemicalUse) => {
-
         setEditMode(true);
         setSelectedChemUse(chemicalUse);
         setSearchTerm(chemicalUse.plantName);
         setSelectedPlant({ plantId: chemicalUse.plantId, plantName: chemicalUse.plantName });
-        //setSelectedCultivation(cultivation);
-        //setInputValue(cultivation.area);
-        //setSelectedPlot(cultivation.plotId);
-        //setSearchTerm(cultivation.plantName);
-        //setSelectedPlant({ plantId: cultivation.plantId, plantName: cultivation.plantName });
-        //setDateValue(format(cultivation.sowingDate, 'yyyy-MM-dd'));
-        //fetchPlotsArea();
-
         setShow(true);
     };
 
     const handleArchive = (chemUse, isArchiving) => {
-        Swal.fire({
-            title: `Czy na pewno chcesz ${isArchiving ? 'zarchiwizować informację' : 'cofnąć archiwizację'}?`,
-            text: `${isArchiving ? 'Po archiwizacji ta informacja będzie dostępna jedynie do odczytu!' : ''}`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: `${isArchiving ? 'Zarchiwizuj!' : 'Cofnij archiwizację'}`,
-            cancelButtonText: 'Anuluj'
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-
-                const response = await archiveChemAgnet(chemUse.chemUseId, isArchiving);
-
-                if (response.status === 'success') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Sukces',
-                        text: response.message,
-                    }).then(() => {
-                        revalidate();
-                    });
-                } else {
-                    Swal.fire('Błąd!', response.message, 'error');
-                }
-            }
-        });
+        archiveHandler(chemUse.chemUseId, isArchiving, archiveChemAgnet, revalidate);
     };
 
     return (
@@ -220,7 +129,7 @@ const ChemicalAgentDetails = () => {
 
                                             <div className={classes.profilePicture}>
                                                 <img
-                                                    src="/chemAgent.png"
+                                                    src={photo}
                                                     alt="Profile"
                                                     className={classes.profileImg} />
                                             </div>
@@ -230,7 +139,7 @@ const ChemicalAgentDetails = () => {
                                                 <Card.Text className={classes.cardText}>
                                                     <p style={{ color: '#6c757d', fontSize:'14px', textAlign:'center' } }>[{type}]</p>
                                                     {description}</Card.Text>
-                                                <Button variant="danger" size="md" style={{ float: 'right', marginBottom: '0px' }} onClick={handleShow} >Dodaj szczegóły</Button>
+                                                {isAdmin() && < Button variant="danger" size="md" style={{ float: 'right', marginBottom: '0px' }} onClick={handleShow} >Dodaj szczegóły</Button>}
                                             </Card.Body>
                                         </Card>
 
@@ -245,12 +154,14 @@ const ChemicalAgentDetails = () => {
                     
                         <p className="display-6 mb-5">Szczegółowe informacje </p>
                         <UniversalTable
-                            key={JSON.stringify(rows)}
-                            columns={columns}
-                            rows={rows}
-                            onEdit={handleEdit} // Funkcja obsługująca edycję
-                            onArchive={handleArchive} // Funkcja obsługująca archiwizację
-                            archivalField="archival" // Nazwa pola archiwizacji (dynamiczne)
+                        key={JSON.stringify(rows)}
+                        columns={columns}
+                        rows={rows}
+                        onEdit={handleEdit}
+                        onArchive={handleArchive}
+                        auth={isAdmin()}
+                        archivalField="archival"
+                        title={`Informacje o ${name}` }
                         />
                     </div>
                
@@ -262,13 +173,10 @@ const ChemicalAgentDetails = () => {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Form noValidate validated={validated} method={editMode ? 'PUT' : 'POST'} onSubmit={handleSubmit}>
-                       
-
+                    <Form noValidate validated={validated} method={editMode ? 'PUT' : 'POST'} onSubmit={handleSubmit}>                       
                         <Form.Group as={Row} className="mb-4" controlId="productSelect">
                             <Form.Label column sm={6}>Wybierz rośline</Form.Label>
                             <Col sm={6}>
-                                {/* Pole wyszukiwania */}
                                 <Form.Control
                                     type="text"
                                     placeholder="Wpisz, aby wyszukać..."
@@ -277,8 +185,6 @@ const ChemicalAgentDetails = () => {
                                     onFocus={() => setShowDropdown(true)}
                                     required
                                 />
-
-                                {/* Dropdown z wynikami */}
                                 {showDropdown && (
                                     <Dropdown.Menu show style={{ width: '100%', maxHeight: '200px', overflowY: 'auto' }}>
                                         {filteredPlants.length > 0 ? (
@@ -307,10 +213,6 @@ const ChemicalAgentDetails = () => {
                                     min="0.05"
                                     max="9999.99"
                                     defaultValue={editMode && selectedChemUse ? selectedChemUse.minDose : ''}
-                                    //value={dateValue}
-                                   // onChange={(e) => setDateValue(e.target.value)}
-                                    required
-                                   // isInvalid={validated && !dateValue} // Walidacja, aby sprawdzić, czy data jest wybrana
                                 />
                             </Col>
                         </Form.Group>
@@ -324,10 +226,6 @@ const ChemicalAgentDetails = () => {
                                     min="0.05"
                                     max="9999.99"
                                     defaultValue={editMode && selectedChemUse ? selectedChemUse.maxDose : ''}
-                                    //value={dateValue}
-                                    // onChange={(e) => setDateValue(e.target.value)}
-                                    required
-                                // isInvalid={validated && !dateValue} // Walidacja, aby sprawdzić, czy data jest wybrana
                                 />
                             </Col>
                         </Form.Group>
@@ -342,10 +240,6 @@ const ChemicalAgentDetails = () => {
                                     min="0.10"
                                     max="9999.99"
                                     defaultValue={editMode && selectedChemUse ? selectedChemUse.minWater : ''}
-                                    //value={dateValue}
-                                    // onChange={(e) => setDateValue(e.target.value)}
-                                    required
-                                // isInvalid={validated && !dateValue} // Walidacja, aby sprawdzić, czy data jest wybrana
                                 />
                             </Col>
                         </Form.Group>
@@ -360,10 +254,6 @@ const ChemicalAgentDetails = () => {
                                     min="0.10"
                                     max="9999.99"
                                     defaultValue={editMode && selectedChemUse ? selectedChemUse.maxWater : ''}
-                                    //value={dateValue}
-                                    // onChange={(e) => setDateValue(e.target.value)}
-                                    required
-                                // isInvalid={validated && !dateValue} // Walidacja, aby sprawdzić, czy data jest wybrana
                                 />
                             </Col>
                         </Form.Group>
@@ -377,10 +267,6 @@ const ChemicalAgentDetails = () => {
                                     min="1"
                                     max="365"
                                     defaultValue={editMode && selectedChemUse ? selectedChemUse.minDays : ''}
-                                    //value={dateValue}
-                                    // onChange={(e) => setDateValue(e.target.value)}
-                                 
-                                // isInvalid={validated && !dateValue} // Walidacja, aby sprawdzić, czy data jest wybrana
                                 />
                             </Col>
                         </Form.Group>
@@ -395,10 +281,6 @@ const ChemicalAgentDetails = () => {
                                     min="1"
                                     max="365"
                                     defaultValue={editMode && selectedChemUse ? selectedChemUse.maxDays : ''}
-                                    //value={dateValue}
-                                    // onChange={(e) => setDateValue(e.target.value)}
-                                    
-                                // isInvalid={validated && !dateValue} // Walidacja, aby sprawdzić, czy data jest wybrana
                                 />
                             </Col>
                         </Form.Group>
@@ -426,16 +308,12 @@ export async function loader({ params }) {
         'Authorization': `Bearer ${token}`,
     };
     const { id } = params;
-    // Pobieranie danych z dwóch endpointów równocześnie
     try {
         const [detailsResponse,plantsResponse, chemicaluseResponse] = await Promise.all([
             fetch(`https://localhost:44311/agrochem/chemicalagents/${id}`, { method: 'GET', headers }),
             fetch(`https://localhost:44311/agrochem/plants`, { method: 'GET', headers }),
             fetch(`https://localhost:44311/agrochem/chemicaluse/${id}`, { method: 'GET', headers }) // Drugi endpoint
         ]);
-        console.log(detailsResponse);
-        console.log(chemicaluseResponse);
-        // Sprawdzanie statusów odpowiedzi
         if (!plantsResponse.ok || !chemicaluseResponse.ok || !detailsResponse.ok) {
             return {
                 isError: true,
@@ -443,15 +321,13 @@ export async function loader({ params }) {
             };
         }
 
-        // Parsowanie danych
         const [plants, chemicalUses, details] = await Promise.all([
             plantsResponse.json(),
             chemicaluseResponse.json(),
             detailsResponse.json()
         ]);
-        console.log(chemicalUses);
-        // Zwracanie danych do komponentu
-        return { plants, chemicalUses, isError: false, message: "", name: details.name, type: details.type, description: details.description };
+
+        return { plants, chemicalUses, isError: false, message: "", name: details.name, type: details.type, description: details.description, photo: details.photo };
 
     } catch (error) {
         console.error("Loader error:", error);
@@ -466,19 +342,15 @@ export async function action({ request, params }) {
     Object.entries(formObject).forEach(([key, value])=> {
         if(value === "")formObject[key] = null;
         });
-    console.log(formObject);
+  
     const method = request.method;
-    console.log(request
-        .method);
-    // URL bazowy
+
     let url = 'https://localhost:44311/agrochem/chemicaluse';
 
-    // Jeśli to metoda PUT, dodaj ID użytkownika do URL
     if (method === 'PUT') {
-        const id = formObject.id; // Zakładamy, że ID jest w formularzu
+        const id = formObject.id; 
         url = `${url}/${id}`;
     }
-    console.log(method);
     const response = await fetch(url, {
         method: method,
         headers: {
@@ -489,7 +361,7 @@ export async function action({ request, params }) {
     });
 
     const result = await response.json();
-    console.log(result.message);
+   
     if (!response.ok) {
         return json({ status: 'error', message: result.message }, { status: response.status });
     }
@@ -499,7 +371,7 @@ export async function action({ request, params }) {
 export async function archiveChemAgnet(chemAgenId, isArchiving) {
     const token = localStorage.getItem("token");
     const url = `https://localhost:44311/agrochem/chemicaluse/archive/${chemAgenId}?archive=${isArchiving}`;
-    console.log(isArchiving);
+    
     try {
         const response = await fetch(url, {
             method: 'PUT',
@@ -520,4 +392,3 @@ export async function archiveChemAgnet(chemAgenId, isArchiving) {
         return { status: 'error', message: 'Nie udało się przeprowadzić operacji dla tej informacji.' };
     }
 }
-///respons ok, er

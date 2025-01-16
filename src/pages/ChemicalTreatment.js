@@ -2,12 +2,11 @@ import classes from './ChemicalTreatment.module.css';
 import React from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Form, Row, Col, Button,  Modal} from 'react-bootstrap';
-import Swal from 'sweetalert2';
 import { useState, useEffect } from 'react';
 import {  useLoaderData, json, useSubmit, useActionData, useRevalidator } from 'react-router-dom';
 import UniversalTable from '../components/Table';
-
-
+import useActionEffect from '../hooks/useActionEffect';
+import deleteHandler from '../components/DeleteHandler';
 
 const ChemicalTreatment = () => {
     const [show, setShow] = useState(false);
@@ -20,11 +19,9 @@ const ChemicalTreatment = () => {
     const [selectedCultivation, setSelectedCultivation] = useState(null);
     const [selectedChemAgent, setSelectedChemAgent] = useState(null);
     const [selectedChemUse, setSelectedChemUse] = useState(null);
-    const [dose, setDose] = useState(null);
+    const [dose, setDose] = useState("");
     const submit = useSubmit();
-    const [plant, setPlant] = useState(null);
-    const [minDose, setMinDose] = useState(null);
-    const [maxDose, setMaxDose] = useState(null);
+    const [area, setArea] = useState("");  
     const { revalidate } = useRevalidator();
     const [rows, setRows] = useState([]);
   
@@ -46,46 +43,25 @@ const ChemicalTreatment = () => {
         }
     }, [chemTreat]);
 
-    useEffect(() => {
-        if (!actionData)
-            return;
-        if (actionData.status === 'success') {
-            Swal.fire({
-                icon: 'success',
-                title: 'Sukces',
-                text: actionData.message,
-            }).then(() => {
-                revalidate();
-                setShow(false);
-            });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Błąd',
-                text: actionData.message,
-            });
-        }
-    }, [actionData]
-    );
+    useActionEffect(actionData, revalidate, setShow);
    
-
     useEffect(() => {
         if (selectedCultivation) {
             const fetchChemAgent = async () => {
                 try {
                     const token = localStorage.getItem("token");
-                    let plantId = selectedCultivation.plantId ? selectedCultivation.plantId: plant ;
+                    let plantId = selectedCultivation.plantId ? selectedCultivation.plantId : selectedChemTreatment.plantId;
                     const response = await fetch(`https://localhost:44311/agrochem/chemicaluse/plant/${plantId}`, {
                         method: 'GET',
                         headers: {
-                            'Authorization': `Bearer ${token}`,  // Przekazujemy token w nagłówku
+                            'Authorization': `Bearer ${token}`,  
                         }
                     });
                     const data = await response.json();
-                    console.log("chemag", data);
+                    
                     setChemAgents(data);
                 } catch (error) {
-                    console.error("Error fetching third list:", error);
+                   
                 }
             };
             fetchChemAgent();
@@ -113,9 +89,8 @@ const ChemicalTreatment = () => {
         setSelectedChemTreatment(null);
         setSelectedCultivation(null);
         setSelectedChemAgent(null);
-        setPlant(null);
-        setMinDose("");
-        setMaxDose("");  
+        setDose("");
+        setArea("");
         setShow(false);
     };
 
@@ -125,24 +100,19 @@ const ChemicalTreatment = () => {
         if (form.checkValidity() === false) {
             event.stopPropagation();
             setValidated(true);
-        } else {  
+        } else {            
             const formData = new FormData(form);
-            formData.set('ChemAgentId', selectedChemAgent.chemAgentId ? selectedChemAgent.chemAgentId : selectedChemAgent);
 
-            const formObject = Object.fromEntries(formData.entries());
-            console.log("form", formObject);
-            
-            //if (editMode) {
-               
-            //    submit({ ...dataToSend, id: selectedChemTreatment.chemTreatId }, { method: 'PUT' });
-            //} else {  
+            formData.set('ChemAgentId', selectedChemAgent.chemAgentId ? selectedChemAgent.chemAgentId : selectedChemAgent);           
+            if (editMode) {
+                formData.append("id", selectedChemTreatment.chemTreatId);
+                submit( formData, { method: 'PUT' });
+            } else {  
                 
-            //    submit(dataToSend, { method: 'POST' });
-            //}
-
+                submit(formData, { method: 'POST' });
+            }
             handleClose();
         }
-
     };
     const handleEdit = (chemTreat) => {
         setEditMode(true);
@@ -150,10 +120,8 @@ const ChemicalTreatment = () => {
         setSelectedCultivation(chemTreat.cultivationId);
         setSelectedChemAgent(chemTreat.chemAgentId);
         setSelectedChemUse(chemTreat.chemUseId);
-        setPlant(chemTreat.plantId);
-        setDose(chemTreat.dose);      
-        setMinDose(chemTreat.minDose);
-        setMaxDose(chemTreat.maxDose);       
+        setDose(chemTreat.dose);     
+        setArea(chemTreat.area);
         setShow(true);
     };
 
@@ -164,7 +132,7 @@ const ChemicalTreatment = () => {
         const selected = cultivations.find(
             (cultivation) => cultivation.cultivationId === parseInt(value)
         );
-        setSelectedCultivation(selected); // Zapisz cały obiekt produktu 
+        setSelectedCultivation(selected); 
     };
 
     const handleSelectChemAgent = (event) => {
@@ -172,7 +140,11 @@ const ChemicalTreatment = () => {
         const selected = chemaAgents.find(
             (chemAgent) => chemAgent.chemUseId === parseInt(value)
         );
-        setSelectedChemAgent(selected); 
+        setSelectedChemAgent(selected);
+    };
+
+    const handleDelete = (chemTreat) => {
+        deleteHandler(chemTreat.chemTreatId, deleteChemicalTreatment,revalidate);
     }
 
     return (
@@ -183,7 +155,7 @@ const ChemicalTreatment = () => {
 
                         <p className="display-4 p-3" ><b>Zabiegi chemiczne</b></p>
                     </div>
-                    <div class="row" style={{ bottom: "0" }}>
+                    <div className="row" style={{ bottom: "0" }}>
                         <div className="col d-flex justify-content-end" >
                         <Button variant="danger" size="lg" onClick={handleShow}>Dodaj nowy zabieg</Button>
                     </div>
@@ -195,8 +167,9 @@ const ChemicalTreatment = () => {
                         key={JSON.stringify(rows)}
                         columns={columns}
                         rows={rows}
-                        onEdit={handleEdit} // Funkcja obsługująca edycję                       
-                        archivalField="brak" // Nazwa pola archiwizacji (dynamiczne)
+                        onEdit={handleEdit}                        
+                        onDelete={handleDelete}
+                        auth="true"
                         title="Zabiegi chemiczne"
                     />
                 </div>
@@ -237,19 +210,28 @@ const ChemicalTreatment = () => {
                             </Form.Group>
                             {selectedCultivation && (
                                 <Form.Group as={Row} className="mb-4" controlId="Area">
-                                    <Form.Label column sm={4}>Powierzchnia uprawy</Form.Label>
+                                    <Form.Label column sm={4}>Powierzchnia uprawy [ha] ({
+                                        selectedCultivation && selectedCultivation.area 
+                                            ? `${Number(selectedCultivation.area)})`
+                                            : `${Number(selectedChemTreatment.maxArea)})`
+                                    } </Form.Label>
                                     <Col sm={8}>
                                         <Form.Control
-                                            type="text"
-                                            value={
-                                                editMode && selectedChemTreatment
-                                                    ? `${Number(selectedChemTreatment.area)} ha`
-                                                    :  `${Number(selectedCultivation.area)} ha`                                                                                                             
-                                                    }
-
-                                            readOnly
+                                            type="number"
+                                            value={area}
+                                            onChange={(e) => setArea(e.target.value)}
+                                            step={0.10}
+                                            min={0.1}
+                                            max={(selectedCultivation && selectedCultivation.area ? Number(selectedCultivation.area) : Number(selectedChemTreatment.maxArea))}
                                             name="Area"
+                                            isInvalid={validated &&
+                                                (area > 0
+                                                || area < (selectedCultivation && selectedCultivation.area ? Number(selectedCultivation.area) : Number(selectedChemTreatment.maxArea)))
+                                            }
                                         />
+                                        <Form.Control.Feedback type="invalid">
+                                            Powierzchnia na której wykonano zabieg musi być mniejsza lub równa powierzchni uprawy.
+                                        </Form.Control.Feedback>
                                     </Col>
                                 </Form.Group>
 
@@ -284,16 +266,22 @@ const ChemicalTreatment = () => {
                             </Form.Group >
                             {selectedChemAgent && (
                                 <Form.Group as={Row} className="mb-4" controlId="Dose">
-                                    <Form.Label column sm={4}>Dawka środka ({`${selectedChemAgent.minDose}l -  ${maxDose}l`} )</Form.Label>
+                                    <Form.Label column sm={4}>Dawka środka (
+                                        {`${selectedChemAgent && selectedChemAgent.minDose ? selectedChemAgent.minDose : selectedChemTreatment.minDose }l
+                                        -  ${selectedChemAgent && selectedChemAgent.maxDose ? selectedChemAgent.maxDose : selectedChemTreatment.maxDose}l`}
+                                        )</Form.Label>
                                     <Col sm={8}>
                                     <Form.Control
                                         type="number"
-                                        value={dose}
-                                        onChange={(e) => setDose(e.target.value)}
-                                            min={selectedChemAgent.minDose}
-                                            max={maxDose}
+                                            value={dose}           
+                                            onChange={(e) => setDose(e.target.value)}
+                                            min={selectedChemAgent && selectedChemAgent.minDose ? selectedChemAgent.minDose : selectedChemTreatment.minDose}
+                                            max={selectedChemAgent && selectedChemAgent.maxDose ? selectedChemAgent.maxDose : selectedChemTreatment.maxDose}
                                             step="0.10"
-                                            isInvalid={validated && (dose > maxDose || dose < minDose)}
+                                            isInvalid={validated &&
+                                                (dose > (selectedChemAgent && selectedChemAgent.minDose ? selectedChemAgent.minDose : selectedChemTreatment.minDose)
+                                                || dose < (selectedChemAgent && selectedChemAgent.maxDose ? selectedChemAgent.maxDose : selectedChemTreatment.maxDose))
+                                            }
                                             required
                                         name="Dose"
                                         />
@@ -309,9 +297,9 @@ const ChemicalTreatment = () => {
                                 <Col sm={8}>
                                     <Form.Control
                                         type="date"
-                                        defaultValue={editMode && selectedChemTreatment ? selectedChemTreatment.date : ""}                                       
+                                        defaultValue={editMode && selectedChemTreatment ? new Date(selectedChemTreatment.date).toISOString().split('T')[0]  : ""}                                       
                                         required
-                                       name="date"
+                                       name="Date"
                                     />
                                     <Form.Control.Feedback type="invalid">
                                         
@@ -329,7 +317,7 @@ const ChemicalTreatment = () => {
                                         maxLength={2000}
                                         rows={5}
                                         defaultValue={editMode && selectedChemTreatment ? selectedChemTreatment.reason :""}                   
-                                        required name="reasons"
+                                        required name="Reason"
                                     // defaultValue={editMode && selectedPlant ? selectedPlant.name : ''}
                                     />
                                     <Form.Control.Feedback></Form.Control.Feedback>
@@ -384,7 +372,7 @@ export async function loader() {
         return { chemTreat, cultivations, isError: false, message: "" };
 
     } catch (error) {
-        console.error("Loader error:", error);
+       
         return { isError: true, message: "An unexpected error occurred" };
     }
     
@@ -394,11 +382,9 @@ export async function action({ request, params }) {
     const token = localStorage.getItem("token");
     const data = await request.formData();
     const formObject = Object.fromEntries(data.entries());
-    console.log(formObject);
+  
     const method = request.method;
-    console.log(request
-        .method);
-    // URL bazowy
+    
     let url = 'https://localhost:44311/agrochem/chemicaltreatment';
 
     // Jeśli to metoda PUT, dodaj ID użytkownika do URL
@@ -406,7 +392,7 @@ export async function action({ request, params }) {
         const id = formObject.id; // Zakładamy, że ID jest w formularzu
         url = `${url}/${id}`;
     }
-    console.log(method);
+    
     try {
         const response = await fetch(url, {
             method: method,
@@ -427,5 +413,28 @@ export async function action({ request, params }) {
     } catch (error) {
         return json({ status: 'error', message: error.message }); // Wyświetl błąd
 
+    }
+}
+export async function deleteChemicalTreatment(id) {
+    const token = localStorage.getItem("token");
+    const url = `https://localhost:44311/agrochem/chemicaltreatment/${id}`;
+    try {
+        const response = await fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            return { status: 'success', message: result.message };
+        } else {
+            const errorData = await response.json();
+            return { status: 'error', message: errorData.message || 'Wystąpił błąd podczas usuwania.' };
+        }
+    } catch (error) {
+        return { status: 'error', message: 'Nie udało się usunąć.' };
     }
 }

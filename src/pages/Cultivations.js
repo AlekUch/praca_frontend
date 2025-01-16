@@ -1,44 +1,38 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import classes from './Cultivations.module.css';
 import { useState, useEffect } from 'react';
-import { Form, Row, Col, Dropdown, Button, Card } from 'react-bootstrap';
+import { Form, Row, Col, Dropdown, Button} from 'react-bootstrap';
 import Modal from 'react-bootstrap/Modal';
-import { Link } from "react-router-dom";
-import withReactContent from 'sweetalert2-react-content';
-import Swal from 'sweetalert2';
-import { useNavigate, useLoaderData, json, useSubmit, useActionData, useRevalidator } from 'react-router-dom';
-import Table from 'react-bootstrap/Table';
-import { OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { useLoaderData, json, useSubmit, useActionData, useRevalidator } from 'react-router-dom';
 import { format } from 'date-fns';
 import UniversalTable from '../components/Table';
-
-
-
-const MySwal = withReactContent(Swal);
+import useActionEffect from '../hooks/useActionEffect';
+import deleteHandler from '../components/DeleteHandler';
+import archiveHandler from '../components/ArchiveHandler';
 
 function Cultivations() {
-
     const [show, setShow] = useState(false);
     const [validated, setValidated] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [selectedPlot, setSelectedPlot] = useState(null);
     const [selectedCultivation, setSelectedCultivation] = useState(null);
-    const data = useLoaderData();
-    const [plants, setPlants] = useState([]);
+    const { cultivations, archivalCultivations, plants, isError, message } = useLoaderData();
     const submit = useSubmit();
     const actionData = useActionData();
     const { revalidate } = useRevalidator();
-    const [plotsArea, setPlotsArea] = useState([]); // Użytkownicy
-    const [maxArea, setMaxArea] = useState(0); // Maksymalny wiek
-    const [inputValue, setInputValue] = useState(''); // Wartość inputu
+    const [plotsArea, setPlotsArea] = useState([]); 
+    const [maxArea, setMaxArea] = useState(0); 
+    const [inputValue, setInputValue] = useState(''); 
     const [dateValue, setDateValue] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredPlants, setFilteredPlants] = useState(plants);
     const [selectedPlant, setSelectedPlant] = useState(null);
     const [showDropdown, setShowDropdown] = useState(false);
     const [rows, setRows] = useState([]);
+    const [archivalRows, setArchivalRows] = useState([]);
 
-    // Filtrowanie produktów
+    useActionEffect(actionData, revalidate, setShow);
+
     useEffect(() => {
 
         if (Array.isArray(plants)) {
@@ -51,36 +45,8 @@ function Cultivations() {
     }, [searchTerm, plants]);
 
     useEffect(() => {
-        // Pobierz listę produktów z backendu
-        const fetchPlants = async () => {
-            try {
-                const token = localStorage.getItem("token");
-                const response = await fetch(`https://localhost:44311/agrochem/plants`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,  // Przekazujemy token w nagłówku
-                    }
-                });
-                if (!response.ok) {
-                    const result = await response.json();
-                    return { isError: true, message: result.message }
-                } else {
-                    const result = await response.json();
-                    setPlants(result);
-
-                }
-            } catch (error) {
-                console.error("Błąd podczas pobierania listy roślin:", error);
-            }
-        };
-
-        fetchPlants();
-    }, []);
-
-    useEffect(() => {
-        if (data && Array.isArray(data)) {
-            console.log("Data:", data);
-            const mappedRows = data.map((item) => ({
+        if (cultivations && Array.isArray(cultivations)) {
+            const mappedRows = cultivations.map((item) => ({
                 id: item.cultivationId,
                 plotNumber: item.plotNumber,
                 plantName: item.plantName,
@@ -88,36 +54,44 @@ function Cultivations() {
                 sowingDate: new Date(item.sowingDate).toLocaleDateString("pl-PL"),
                 originalData: item,
             }));
+            setRows(mappedRows); 
+        }
+    }, [cultivations]);
 
-            setRows(mappedRows); // Ustawiamy dane w stanie
+    useEffect(() => {
+        if (archivalCultivations && Array.isArray(archivalCultivations)) {
+
+            const mappedRows = archivalCultivations.map((item) => ({
+                id: item.cultivationId,
+                plotNumber: item.plotNumber,
+                plantName: item.plantName,
+                area: `${item.area} ha`,
+                sowingDate: new Date(item.sowingDate).toLocaleDateString("pl-PL"),
+                originalData: item,
+            }));
+            setArchivalRows(mappedRows); 
 
         }
-    }, [data]);
+    }, [archivalCultivations]);
 
     const columns = [
-        { field: 'plotNumber', headerName: 'Numer działki', flex: 1, headerClassName: 'super-app-theme--header' },
-        { field: 'plantName', headerName: 'Uprawiana roślina', flex: 1, },
-        { field: 'area', headerName: 'Powierzchnia', flex: 1, },
-        { field: 'sowingDate', headerName: 'Data siewu', flex: 1, },
-        
-
+        { field: 'plotNumber', headerName: 'Numer działki', flex: 1, headerAlign: 'center' },
+        { field: 'plantName', headerName: 'Uprawiana roślina', flex: 1, headerAlign: 'center' },
+        { field: 'area', headerName: 'Powierzchnia', flex: 1, headerAlign: 'center' },
+        { field: 'sowingDate', headerName: 'Data siewu', flex: 1, headerAlign: 'center' },       
     ];
 
-   
-
-    // Obsługa pola wyszukiwania
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
         setShowDropdown(true);
     };
 
-    // Obsługa wyboru produktu
     const handleSelectPlant = (plant) => {
         setSelectedPlant(plant);
-        setSearchTerm(plant.name); // Ustaw nazwę w polu tekstowym
-        setShowDropdown(false); // Zamknięcie dropdownu
+        setSearchTerm(plant.name); 
+        setShowDropdown(false); 
     };
-    // Funkcja do pobierania użytkowników z backendu
+ 
     const fetchPlotsArea = async () => {
         try {
             const token = localStorage.getItem("token");
@@ -140,35 +114,13 @@ function Cultivations() {
         }
     };
 
-    useEffect(() => {
-        if (!actionData)
-            return;
-        if (actionData.status === 'success') {
-            Swal.fire({
-                icon: 'success',
-                title: 'Sukces',
-                text: actionData.message,
-            }).then(() => {
-                revalidate();
-                setShow(false);
-            });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Błąd',
-                text: actionData.message,
-            });
-        }
-    }, [actionData]
-    );
-
     const handleShow = () => {
         setShow(true);
         fetchPlotsArea();
     };
 
-    if (data.isError) {
-        return <p>Błąd: {data.message}</p>;
+    if (isError) {
+        return <p>Błąd: {message}</p>;
     }
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -177,31 +129,21 @@ function Cultivations() {
             event.stopPropagation();
             setValidated(true);
         } else {
-            
+            const dataToSend = {
+                area: inputValue,
+                sowingDate: dateValue,
+                plotId: selectedPlot,
+                plantId: Number(selectedPlant.plantId),               
+            };
             if (editMode) {
-                // Prześlij żądanie PUT
-                const dataToSend = {
-                    area: inputValue,
-                    sowingDate: dateValue,
-                    plotId: selectedPlot,
-                    plantId: Number(selectedPlant.plantId),
-                    cultivationId: selectedCultivation.cultivationId
-                };
+                dataToSend.cultivationId = selectedCultivation.cultivationId;
                 submit(dataToSend, { method: 'PUT' });
             } else {
-                // Prześlij żądanie POST
-                const dataToSend = {
-                    area: inputValue,
-                    sowingDate: dateValue,
-                    plotId: selectedPlot,
-                    plantId: selectedPlant.plantId
-                };
+                
                 submit(dataToSend, { method: 'POST' });
             }
-
             handleClose();  
-        }
-                 
+        }               
     };
 
     const handleSelectChange = (e) => {
@@ -209,16 +151,13 @@ function Cultivations() {
         const plot = plotsArea.find(plot => plot.plotId.toString() === plotId); // Znajdź użytkownika po ID
         setSelectedPlot(plotId); // Ustaw ID wybranego użytkownika
         setMaxArea(plot ? plot.area : 0); // Ustaw maksymalny wiek
-        // Resetuj wartość inputu
     };
 
     const handleInputChange = (e) => {
         setInputValue(e.target.value);
     };
 
-
-    const handleEdit = (cultivation) => {
-        
+    const handleEdit = (cultivation) => {        
         setEditMode(true);
         setSelectedCultivation(cultivation);
         setInputValue(cultivation.area);      
@@ -226,8 +165,7 @@ function Cultivations() {
         setSearchTerm(cultivation.plantName);
         setSelectedPlant({ plantId:cultivation.plantId, plantName:cultivation.plantName });
         setDateValue(format(cultivation.sowingDate, 'yyyy-MM-dd'));
-        fetchPlotsArea();
-       
+        fetchPlotsArea();       
         setShow(true);
     };
 
@@ -247,82 +185,49 @@ function Cultivations() {
     };
 
     const handleArchive = (cultivation, isArchiving) => {
-        Swal.fire({
-            title: `Czy na pewno chcesz zakończyć tą uprawę?`,
-            text: ` 'Po zakończeniu edycja i usunięcie tej uprawy nie będzie możliwe!`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: `Zarchiwizuj!`,
-            cancelButtonText: 'Anuluj'
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-
-                const response = await archiveCultivation(cultivation.cultivationId, isArchiving);
-
-                if (response.status === 'success') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Sukces',
-                        text: response.message,
-                    }).then(() => {
-                        revalidate();
-                    });
-                } else {
-                    Swal.fire('Błąd!', response.message, 'error');
-                }
-            }
-        });
+        archiveHandler(cultivation.cultivationId, isArchiving, archiveCultivation, revalidate);
     };
 
     const handleDelete = (cultivation) => {
-        Swal.fire({
-            title: `Czy na pewno chcesz usunąć tą uprawę?`,
-            text: ` 'Po usunięciu uprawy będzie ona niedostępna!`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: `Usuń!`,
-            cancelButtonText: 'Anuluj'
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-
-                const response = await deleteCultivation(cultivation.cultivationId);
-
-                if (response.status === 'success') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Sukces',
-                        text: response.message,
-                    }).then(() => {
-                        revalidate();
-                    });
-                } else {
-                    Swal.fire('Błąd!', response.message, 'error');
-                }
-            }
-        });
+        deleteHandler(cultivation.cultivationId, deleteCultivation, revalidate);
     };
 
     return (
         <>
             <div style={{ width: '100%' }} className="p-5 text-center bg-body-tertiary ">
-                <p className="display-4">Aktualne uprawy</p>
-                <div class="row">
+                <div className={classes.containerTop} >
+                    <div className={classes.containerTitle} >
+                        <p className="display-4">Uprawy</p>
+                </div>
+                <div className="row">
                     <div className="col d-flex justify-content-end">
                         <Button variant="danger" size="lg" onClick={handleShow}>Dodaj nową uprawę</Button>
+                        </div>
                     </div>
                 </div>
                 <div className={classes.container}>
+                <hr></hr>
+                    <p className="display-6" style={{marginTop:"1%"} }>Aktualne uprawy</p>
                     <UniversalTable
                         key={JSON.stringify(rows)}
                         columns={columns}
                         rows={rows}
                         onEdit={handleEdit} // Funkcja obsługująca edycję
                         onArchive={handleArchive} // Funkcja obsługująca archiwizację
+                        onDelete={handleDelete}
+                        auth="true"
                         archivalField="archival" // Nazwa pola archiwizacji (dynamiczne)
+                        title="Aktualne uprawy"
+                    />
+                </div>
+                <div className={classes.container} style={{ marginTop: "1%" }}>
+                    <hr ></hr>
+                    <p className="display-6" style={{ marginTop: "1%" }}>Zakończone uprawy</p>
+                    <UniversalTable
+                        key={JSON.stringify(archivalRows)}
+                        columns={columns}
+                        rows={archivalRows}
+                        title="Zakończone uprawy"
                     />
                 </div>
                 <Modal show={show} onHide={handleClose} size="md" className={classes.modal} >
@@ -382,7 +287,6 @@ function Cultivations() {
                                         required
                                     />
 
-                                    {/* Dropdown z wynikami */}
                                     {showDropdown && (
                                         <Dropdown.Menu show style={{ width: '100%', maxHeight: '200px', overflowY: 'auto' }}>
                                             {filteredPlants.length > 0 ? (
@@ -409,7 +313,7 @@ function Cultivations() {
                                     value={dateValue}
                                     onChange={(e) => setDateValue(e.target.value)}
                                     required
-                                    isInvalid={validated && !dateValue} // Walidacja, aby sprawdzić, czy data jest wybrana
+                                    isInvalid={validated && !dateValue} 
                                 />
                                </Col>
                             </Form.Group>
@@ -421,46 +325,53 @@ function Cultivations() {
                                 </Button>
                             </Form.Group>
                         </Form>
-
                     </Modal.Body>
-
                 </Modal>
             </div>
         </>
     )
-
-
 }
 
 export default Cultivations;
 export async function loader() {
     const token = localStorage.getItem("token");
-    const response = await fetch(`https://localhost:44311/agrochem/cultivations`, {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${token}`,  // Przekazujemy token w nagłówku
+    const headers = {
+        'Authorization': `Bearer ${token}`,
+    };
+    try {
+        const [cultivationsResponse, archivalCultivationsResponse, plantsResponse] = await Promise.all([
+            fetch(`https://localhost:44311/agrochem/cultivations?isArchive=false`, { method: 'GET', headers }),
+            fetch(`https://localhost:44311/agrochem/cultivations?isArchive=true`, { method: 'GET', headers }),
+            fetch(`https://localhost:44311/agrochem/plants`, {method: 'GET', headers})
+
+        ]);
+        if (!cultivationsResponse.ok || !archivalCultivationsResponse.ok || !plantsResponse.ok) {
+            return {
+                isError: true,
+                message: "Failed to fetch data",
+            };
         }
-    });
-    if (!response.ok) {
-        console.log(response);
-       // const result = await response.json();
-        return { isError: true, message: response.message }
-    } else {
-        console.log(response);
-        return await response.json();
-       
+
+        const [cultivations, archivalCultivations, plants] = await Promise.all([
+            cultivationsResponse.json(),
+            archivalCultivationsResponse.json(),
+            plantsResponse.json()
+        ]);
+
+        return { cultivations, archivalCultivations,plants, isError: false, message: "" };
+
+    } catch (error) {
+
+        return { isError: true, message: "An unexpected error occurred" };
     }
+    
 }
 
 export async function action({ request, params }) {
     const token = localStorage.getItem("token");
     const data = await request.formData();
-    //console.log(data);
     const formObject = Object.fromEntries(data.entries());
-    console.log(formObject);
     const method = request.method;
-   
-    // URL bazowy
     let url = 'https://localhost:44311/agrochem/cultivations';
 
     if (method === 'PUT') {
@@ -480,7 +391,7 @@ export async function action({ request, params }) {
     const result = await response.json();
    
     if (!response.ok) {
-        console.log(response);
+       
         return json({ status: 'error', message: response.message }, { status: response.status });
     }
 
@@ -489,8 +400,7 @@ export async function action({ request, params }) {
 
 export async function archiveCultivation(cultivationId, isArchiving) {
     const token = localStorage.getItem("token");
-    const url = `https://localhost:44311/agrochem/cultivations/archive/${cultivationId}?archive=${isArchiving}`;
-    
+    const url = `https://localhost:44311/agrochem/cultivations/archive/${cultivationId}?archive=${isArchiving}`;  
     try {
         const response = await fetch(url, {
             method: 'PUT',
@@ -536,5 +446,3 @@ export async function deleteCultivation(cultivationId) {
         return { status: 'error', message: 'Nie udało się przeprowadzić operacji.' };
     }
 }
-///respons ok, error message -> useActionData
-//

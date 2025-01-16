@@ -6,18 +6,16 @@ import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Modal from 'react-bootstrap/Modal';
-import withReactContent from 'sweetalert2-react-content';
-import Swal from 'sweetalert2';
 import { useNavigate, useLoaderData, json, useSubmit, useActionData, useRevalidator } from 'react-router-dom';
 import UniversalTable from '../components/Table';
 import { Visibility } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
+import useActionEffect from '../hooks/useActionEffect';
+import archiveHandler from '../components/ArchiveHandler';
+import Swal from 'sweetalert2';
+import { isAdmin } from '../components/authUtil';
 
-
-const MySwal = withReactContent(Swal);
-
-function Plants() {
-
+function ChemicalAgent() {
     const [show, setShow] = useState(false);
     const [validated, setValidated] = useState(false);
     const [editMode, setEditMode] = useState(false);
@@ -28,32 +26,13 @@ function Plants() {
     const { revalidate } = useRevalidator();
     const navigate = useNavigate();
     const [rows, setRows] = useState([]);
-    const chemAgents = data;
-    useEffect(() => {
-        if (!actionData)
-            return;
-        if (actionData.status === 'success') {
-            Swal.fire({
-                icon: 'success',
-                title: 'Sukces',
-                text: actionData.message,
-            }).then(() => {
-                revalidate();
-                setShow(false);
-            });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Błąd',
-                text: actionData.message,
-            });
-        }
-    }, [actionData]
-    );
+    const [preview, setPreview] = useState(null);
+    const [photo, setPhoto] = useState();
+
+    useActionEffect(actionData, revalidate, setShow);
 
     useEffect(() => {
-        if (data && Array.isArray(data)) {
-            console.log("Data:", data);
+        if (data && Array.isArray(data)) {           
             const mappedRows = data.map((item) => ({
                 id: item.chemAgentId,
                 name: item.name,
@@ -62,25 +41,23 @@ function Plants() {
                 originalData: item,
                 details: (
                     <IconButton
-                        onClick={() => navigate(`/chemicalagents/${item.chemAgentId}`)} // Funkcja do kliknięcia
+                        onClick={() => navigate(`/chemicalagents/${item.chemAgentId}`)} 
                         color="primary"
                     >
                         <Visibility />
                     </IconButton>)
             }));
 
-            setRows(mappedRows); // Ustawiamy dane w stanie
-
+            setRows(mappedRows); 
         }
     }, [data, navigate]);
     const columns = [
         { field: 'name', headerName: 'Nazwa', minWidth: 200, headerAlign: 'center' },
-        { field: 'type', headerName: 'Typ', minWidth: 200, headerAlign: 'center' },
-        { field: 'description', headerName: 'Opis', minWidth: 530, headerAlign: 'center' },
-        { field: "details", headerName: "Szczegóły", minWidth: 100, headerAlign: 'center' },
+        { field: 'type', headerName: 'Typ',  minWidth: 200, headerAlign: 'center' },
+        { field: 'description', headerName: 'Opis', flex: 1, minWidth: 200, headerAlign: 'center' },
+        { field: "details", headerName: "Szczegóły",  minWidth: 100, headerAlign: 'center' },
 
     ];
-
 
     const handleShow = () => setShow(true);
 
@@ -88,27 +65,69 @@ function Plants() {
         return <p>Błąd: {data.message}</p>;
     }
   
-
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
         const form = event.currentTarget;
 
-        // Przeprowadzenie walidacji formularza
         if (form.checkValidity() === false) {
             event.stopPropagation();
             setValidated(true);
         } else {
             const formData = new FormData(form);
-            console.log(editMode);
+            console.log("xd");
+            const token = localStorage.getItem("token");
+
+            let url = 'https://localhost:44311/agrochem/chemicalagents';
+            let method = "POST";
 
             if (editMode) {
-                // Prześlij żądanie PUT
+                url = `${url}/${selectedChemAgent.chemAgentId}`;
+                method = "PUT";
+                console.log(selectedChemAgent.chemAgentId);
+            }
 
-                formData.append('id', selectedChemAgent.chemAgentId); // Ustaw identyfikator użytkownika
-                submit(formData, { method: 'PUT' });
-            } else {
-                // Prześlij żądanie POST
-                submit(formData, { method: 'POST' });
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        // 'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    const result = await response.json();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Błąd',
+                        text: result.message,
+                    }).then(() => {
+
+                        setShow(false);
+                    });
+                } else {
+                    const result = await response.json();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Sukces',
+                        text: result.message,
+                    }).then(() => {
+                        revalidate();
+                        setShow(false);
+                    });
+                }
+
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Błąd',
+                    text: error,
+                }).then(() => {
+
+                    setShow(false);
+                });
+
             }
             handleClose();
         }
@@ -118,55 +137,47 @@ function Plants() {
     const handleEdit = (chemAgent) => {
         setEditMode(true);
         setSelectedChemAgent(chemAgent);
+        setPreview(chemAgent.photo);
+        console.log(chemAgent);
         setShow(true);
     };
 
     const handleClose = () => {
         setEditMode(false);
         setSelectedChemAgent(null);
+        setPreview(null);
         setShow(false);
     };
 
-    const handleArchive = (plant, isArchiving) => {
-        Swal.fire({
-            title: `Czy na pewno chcesz ${isArchiving ? 'zarchiwizować środek' : 'cofnąć archiwizację'}?`,
-            text: `${isArchiving ? 'Po archiwizacji ten środek będzie niedostępny!' : ''}`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: `${isArchiving ? 'Zarchiwizuj!' : 'Cofnij archiwizację'}`,
-            cancelButtonText: 'Anuluj'
-        }).then(async (result) => {
-            if (result.isConfirmed) {
+    const handleArchive = (chemAgent, isArchiving) => {
+        archiveHandler(chemAgent.chemAgentId, isArchiving, archiveChemAgnet, revalidate);
+    };
 
-                const response = await archiveChemAgnet(plant.chemAgentId, isArchiving);
+    const handleFileChange = (e) => {
 
-                if (response.status === 'success') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Sukces',
-                        text: response.message,
-                    }).then(() => {
-                        revalidate();
-                    });
-                   
-                } else {
-                    Swal.fire('Błąd!', response.message, 'error');
-                }
-
-            }
-        });
+        const photo = e.target.files[0];
+        if (photo) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreview(reader.result);  // Ustawienie prewizualizacji wybranego obrazu
+            };
+            reader.readAsDataURL(photo);
+            setPhoto(photo);  // Ustawienie wybranego pliku
+        }
     };
  
 
     return (
         <>
-            <div style={{ width: '100%' }} className="p-5 text-center bg-body-tertiary ">
-                <p className="display-4">Środki chemiczne</p>
+            <div style={{ width: '100%' }} className="p-3 text-center bg-body-tertiary ">
+                <div className={classes.containerTop} >
+                    <div className={classes.containerTitle} >
+                        <p className="display-4"><b>Środki chemiczne</b></p>
+                </div>
                 <div class="row">
                     <div className="col d-flex justify-content-end">
-                        <Button variant="danger" size="lg" onClick={handleShow}>Dodaj nowy środek chemiczny</Button>
+                            {isAdmin() && <Button variant="danger" size="lg" onClick={handleShow}>Dodaj nowy środek chemiczny</Button>}
+                        </div>
                     </div>
                 </div>
                 <div className={classes.container}>
@@ -174,9 +185,10 @@ function Plants() {
                         key={JSON.stringify(rows)}
                         columns={columns}
                         rows={rows}
-                        onEdit={handleEdit} // Funkcja obsługująca edycję
-                        onArchive={handleArchive} // Funkcja obsługująca archiwizację
-                        archivalField="archival" // Nazwa pola archiwizacji (dynamiczne)
+                        onEdit={handleEdit} 
+                        onArchive={handleArchive} 
+                        auth={isAdmin()}
+                        archivalField="archival" 
                         titlr="Środki chemiczne"
                     />
                 </div>
@@ -237,6 +249,29 @@ function Plants() {
 
                                 </Col>
                             </Form.Group>
+
+                            <Form.Group as={Row} className="mb-4" controlId="File">
+                                <Form.Label column sm={2}>
+                                    Plik
+                                </Form.Label>
+                                <Col sm={10}>
+                                    <Form.Control
+                                        type="file"
+                                        name="file"
+                                        accept="image/*"
+                                        onChange={handleFileChange}
+                                    // required
+                                    />
+                                    <div>
+                                        <p style={{ float: "left" }}>Obecny obraz:</p>
+                                        <img
+                                            src={preview}
+                                            alt="Nie wybrano obrazu"
+                                            style={{ maxWidth: '300px', marginTop: '10px' }}
+                                        />
+                                    </div>
+                                </Col>
+                            </Form.Group>
                             
                             <Form.Group as={Row} className="mb-3" >
                                 <Button className={classes.savePlotButton} type="submit">ZAPISZ</Button>
@@ -252,17 +287,19 @@ function Plants() {
             </div>
         </>
     )
-
-
 }
 
-export default Plants;
+export default ChemicalAgent;
 export async function loader() {
     const token = localStorage.getItem("token");
-    const response = await fetch(`https://localhost:44311/agrochem/chemicalagents`, {
+    let archive="false"
+    if (isAdmin()) {
+        archive = "true";
+    }
+    const response = await fetch(`https://localhost:44311/agrochem/chemicalagents?isArchive=${archive}`, {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${token}`,  // Przekazujemy token w nagłówku
+            'Authorization': `Bearer ${token}`,  
         }
     });
     if (!response.ok) {
@@ -277,19 +314,14 @@ export async function action({ request, params }) {
     const token = localStorage.getItem("token");
     const data = await request.formData();
     const formObject = Object.fromEntries(data.entries());
-
     const method = request.method;
-    console.log(request
-        .method);
-    // URL bazowy
     let url = 'https://localhost:44311/agrochem/chemicalagents';
 
-    // Jeśli to metoda PUT, dodaj ID użytkownika do URL
     if (method === 'PUT') {
-        const id = formObject.id; // Zakładamy, że ID jest w formularzu
+        const id = formObject.id; 
         url = `${url}/${id}`;
     }
-    console.log(method);
+   
     try {
         const response = await fetch(url, {
             method: method,
@@ -315,8 +347,9 @@ export async function action({ request, params }) {
 
 export async function archiveChemAgnet(chemAgenId, isArchiving) {
     const token = localStorage.getItem("token");
+
     const url = `https://localhost:44311/agrochem/chemicalagents/archive/${chemAgenId}?archive=${isArchiving}`;
-    console.log(isArchiving);
+   
     try {
         const response = await fetch(url, {
             method: 'PUT',
@@ -337,5 +370,3 @@ export async function archiveChemAgnet(chemAgenId, isArchiving) {
         return { status: 'error', message: 'Nie udało się przeprowadzić operacji dla tej rośliny.' };
     }
 }
-///respons ok, error message -> useActionData
-//
