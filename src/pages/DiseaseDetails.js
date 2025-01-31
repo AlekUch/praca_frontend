@@ -1,14 +1,9 @@
 import classes from './DiseaseDetails.module.css';
 import React from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Form, Row, Col, Dropdown, Button, Card, Table, Modal, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import withReactContent from 'sweetalert2-react-content';
-import Swal from 'sweetalert2';
-import { useState, useEffect } from 'react';
-import { useNavigate, useLoaderData, json, useSubmit, useActionData, useRevalidator, useParams } from 'react-router-dom';
-import { useLocation } from "react-router-dom";
-import { useRouteLoaderData } from "react-router";
-const MySwal = withReactContent(Swal);
+import {Card} from 'react-bootstrap';
+import { useLoaderData } from 'react-router-dom';
+
 
 
 const DiseaseDetails = () => {

@@ -78,10 +78,10 @@ function Registration() {
                         title: 'Sukces!',
                         text: result.message,
                         icon: 'success',
-                        confirmButtonText:"Przejdź do logowania"
+                        confirmButtonText:"OK"
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            navigate('/login'); // Użycie navigate do przekierowania
+                            navigate('/'); // Użycie navigate do przekierowania
                         }
 
                     });

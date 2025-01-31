@@ -1,0 +1,113 @@
+
+.savePlotButton {
+    width: 100%;
+    font-size: 1rem; /* Zwiêkszony rozmiar czcionki */
+    padding: 0.35rem 1rem; /* Wiêkszy odstêp wewnêtrzny (padding) */
+    border-radius: 1.5rem; /* Zaokr¹glenie rogów */
+    background-color: #007bff; /* Kolor t³a */
+    color: white; /* Kolor tekstu */
+    /* Brak obramowania */
+    cursor: pointer; /* Zmieniony kursor */
+    transition: background-color 0.3s ease;
+    font-weight: 400;
+    margin-top: 3%;
+    margin-bottom: 0;
+}
+
+    .savePlotButton:hover {
+        background-color: #0056b3; /* Kolor t³a po najechaniu */
+    }
+
+.modal {
+    display: flex;
+    justify-content: center; /* Centrowanie poziome */
+    align-items: center;
+    position: fixed;
+    text-align: center;
+}
+
+.modalFooterButton {
+    width: 50%;
+    margin: auto;
+    border-radius: 1.5rem;
+    margin-top: 1%;
+}
+
+.modalTitle {
+    text-align: center;
+    width: 100%;
+    margin: auto;
+}
+
+.container {
+    max-width: 1500px;
+    margin-top: 5%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+
+.profilePicture {
+    position: relative;
+    width: 100%;
+    height: 300px; /* Okreœlenie wysokoœci kontenera */
+    overflow: visible; /* Zezwolenie na wychodzenie obrazu poza granice kontenera */
+}
+
+.profileImg {
+    position: absolute; /* Ustawienie obrazu w taki sposób, aby móg³ wychodziæ poza granice */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Dopasowanie obrazu do kontenera */
+    transition: transform 0.3s ease-in-out; /* P³ynne powiêkszanie */
+    object-position: center; /* Obrazek bêdzie wyœrodkowany */
+}
+
+/* Powiêkszenie obrazu */
+.profilePicture:hover .profileImg {
+    transform: scale(1.5); /* Powiêkszenie obrazu przy najechaniu */
+}
+
+/* Opcjonalnie - cieñ przy najechaniu */
+.profilePicture:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Cieñ dla efektu g³êbi */
+}
+
+.cardCustom {
+    position: relative; /* Umo¿liwia wychodzenie zawartoœci poza granice */
+    overflow: visible; /* Wa¿ne, aby obrazek móg³ wychodziæ poza kontener */
+    width: 40%;
+    margin: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Powiêkszenie zdjêcia przy najechaniu */
+.cardTitle {
+    font-size: 30px;
+}
+
+.cardText {
+    width: 90%;
+    margin: auto;
+    text-align: justify;
+}
+
+.cardContainer {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap; /* Pozwala na zawijanie elementów */
+}
+
+
+
+@media (max-width: 768px) {
+    .cardCustom {
+        width: 100%; /* Karty zajmuj¹ pe³n¹ szerokoœæ na mniejszych ekranach */
+    }
+}

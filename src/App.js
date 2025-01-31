@@ -14,6 +14,9 @@ import DiseasePage, { loader as loaderDiseases, action as actionDiseases } from 
 import DiseaseDetailsPage, { loader as loaderDiseaseDetails } from './pages/DiseaseDetails';
 import ChemicalTreatmentPage, { loader as loaderChemTreatment, action as actionChemTreatment } from './pages/ChemicalTreatment';
 import CalculatorPage, { loader as loaderCalculator } from './pages/Calculator.js';
+import AccountActivationPage from './pages/AccountActivation.js';
+import ForgotPasswordPage from './pages/ForgotPassword.js';
+import ResetPasswordPage from './pages/ResetPassword.js';
 
 const router = createBrowserRouter([
     {
@@ -87,8 +90,19 @@ const router = createBrowserRouter([
                 path: "calculator",
                 element: <CalculatorPage />,
                 loader: loaderCalculator,
-               // action: actionChemTreatment,
 
+            },
+            {
+                path: "activate/:token",
+                element: <AccountActivationPage/>
+            },
+            {
+                path: "forgot-password",
+                element: <ForgotPasswordPage />
+            },
+            {
+                path: "reset-password/:token",
+                element: <ResetPasswordPage />
             },
             //    children: [
             //        {

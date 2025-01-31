@@ -1,11 +1,13 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import classes from './Calculator.module.css';
 import { useState, useEffect } from 'react';
-import { Form, Row, Col, Dropdown, Button } from 'react-bootstrap';
+import { Form, Row, Col, Dropdown, Button, Card } from 'react-bootstrap';
 import Modal from 'react-bootstrap/Modal';
 import { useLoaderData, json, useSubmit, useActionData, useRevalidator } from 'react-router-dom';
 import { format } from 'date-fns';
 import useActionEffect from '../hooks/useActionEffect';
+import ScienceIcon from "@mui/icons-material/Science";
+import OpacityIcon from "@mui/icons-material/Opacity";
 
 function Calculator() {
     const [show, setShow] = useState(false);
@@ -17,24 +19,16 @@ function Calculator() {
     const actionData = useActionData();
     const { revalidate } = useRevalidator();
     const [chemUse, setChemUse] = useState([]);
-    const [maxArea, setMaxArea] = useState(0);
-    const [inputValue, setInputValue] = useState('');
-    const [dateValue, setDateValue] = useState('');
-    const [searchTerm, setSearchTerm] = useState('');
-    const [filteredPlants, setFilteredPlants] = useState(plants);
+    const [calculatedDose, setCalculatedDose] = useState(null);
+    const [calculatedWater, setCalculatedWater] = useState(null);
     const [selectedPlant, setSelectedPlant] = useState(null);
     const [showDropdown, setShowDropdown] = useState(false);
-    const [rows, setRows] = useState([]);
-    const [archivalRows, setArchivalRows] = useState([]);
+    const [area, setArea] = useState("");
+    const [dose, setDose] = useState("");
+    const [water, setWater] = useState("");
 
     useActionEffect(actionData, revalidate, setShow);
 
-
-    const handleSelectPlant = (plant) => {
-        setSelectedPlant(plant);
-        setSearchTerm(plant.name);
-        setShowDropdown(false);
-    };
 
     const fetchChemAgents = async (plantId) => {
         try {
@@ -42,7 +36,7 @@ function Calculator() {
             const response = await fetch(`https://localhost:44311/agrochem/chemicaluse/plant/${plantId}`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${token}`,  // Przekazujemy token w nag³ówku
+                    'Authorization': `Bearer ${token}`,  // Przekazujemy token w nagÅ‚Ã³wku
                 }
             });
             if (!response.ok) {
@@ -54,13 +48,13 @@ function Calculator() {
                 console.log(result);
             }
         } catch (error) {
-            console.error('B³¹d pobierania dzia³ek:', error);
+            console.error('BÅ‚Ä…d pobierania dziaÅ‚ek:', error);
         }
     };
 
 
     if (isError) {
-        return <p>B³¹d: {message}</p>;
+        return <p>BÅ‚Ä…d: {message}</p>;
     }
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -69,46 +63,39 @@ function Calculator() {
             event.stopPropagation();
             setValidated(true);
         } else {
-            const dataToSend = {
-                area: inputValue,
-                sowingDate: dateValue,
-                plotId: selectedPlot,
-                plantId: Number(selectedPlant.plantId),
-            };
-            
-
-                submit(dataToSend, { method: 'POST' });
-            
-
+            let doseVal = (dose * area).toFixed(2);
+            let waterVal = (water * area).toFixed(2);
+            setCalculatedDose(doseVal);
+            setCalculatedWater(waterVal);
         }
     };
 
-    const resetForm = () => {
-        //setInputValue(''); // Resetowanie stanu formularza
-        //setValidated(false);
-        //setSelectedPlot(null);
-        //setSelectedPlant(null);
-        //setDateValue('');
-        //setSearchTerm('');// Resetowanie walidacji
-    };
+
 
     const handleSelectChange = (e) => {
+        setCalculatedDose(null);
         const plotId = e.target.value;
-        const plot = plots.find(plot => plot.plotId === plotId); // ZnajdŸ u¿ytkownika po ID
-        setSelectedPlot(plotId); // Ustaw ID wybranego u¿ytkownika
-        setMaxArea(plot ? plot.area : 0); // Ustaw maksymalny wiek
+        const plot = plots.find((plot) => plot.plotId === parseInt(plotId)); // ZnajdÅº uÅ¼ytkownika po ID
+        console.log(plot);
+        setSelectedPlot(plot); // Ustaw ID wybranego uÅ¼ytkownika
+        setArea(plot.area);
     };
 
     const handlePlantChange = async (e) => {
+        setCalculatedDose(null);
         const plantId = e.target.value;
-        setSelectedPlant(plantId); // Ustaw ID wybranego u¿ytkownika
+        setSelectedPlant(plantId); // Ustaw ID wybranego uÅ¼ytkownika
         await fetchChemAgents(plantId);
     };
 
     const handleChemUseChange = (e) => {
+        setCalculatedDose(null);
         const chemUseId = e.target.value;
-        setSelectedChemUse(chemUseId); // Ustaw ID wybranego u¿ytkownika
-        console.log(chemUseId);
+        const selected = chemUse.find(
+            (chemUse) => chemUse.chemUseId === parseInt(chemUseId)
+        );
+        setSelectedChemUse(selected);
+
     };
 
     return (
@@ -116,75 +103,159 @@ function Calculator() {
             <div style={{ width: '100%' }} className="p-5 text-center bg-body-tertiary ">
                 <div className={classes.containerTop} >
                     <div className={classes.containerTitle} >
-                        <p className="display-4">Kalkulator zastosowania œrodka</p>
+                        <p className="display-4">Kalkulator zastosowania Å›rodka</p>
                     </div>
                     <div className="row">
                        
                     </div>
                 </div>
                 <div className={classes.container}>
-                    <Form noValidate validated={validated} method='POST' onSubmit={handleSubmit}>
-                        <Form.Group as={Row} className="mb-4" controlId="areaInput">
-                            <Form.Label column sm={3}>Wybierz dzia³kê</Form.Label>
-                            <Col sm={9}>
-                                <Form.Control as="select"
-                                    value={selectedPlot ? selectedPlot : ''}
-                                    onChange={handleSelectChange}
-                                    required
-                                    isInvalid={validated && !selectedPlot}>
-                                    <option value="" >Wybierz z listy...</option>
-                                    {plots.map(plotArea => (
-                                        <option key={plotArea.plotId} value={plotArea.plotId}>{plotArea.plotNumber} {plotArea.area}ha</option>
+                <div className="row">
+                    <div class="col-8" >
+                        <Card className="text-center" style={{ minHeight: "100px", margin: 'auto', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', overflow: 'hidden' }}>
+                            <Card.Title style={{ fontSize: "25px", float: "center", paddingTop:"3%" }}><b>WprowadÅº dane</b></Card.Title>
+                            <Card.Body style={{ borderRadius: '10px' }}>
+                                <Card.Text className={classes.cardText}>
+                                    
+                                    <Form noValidate validated={validated} method='POST' onSubmit={handleSubmit}>
+                                        <Form.Group as={Row} className="mb-4" controlId="area">
+                                            <Form.Label column sm={3}>Wybierz dziaÅ‚kÄ™</Form.Label>
+                                            <Col sm={9}>
+                                                <Form.Control as="select"
+                                                    value={selectedPlot ? selectedPlot.plotId : ''}
+                                                    onChange={handleSelectChange}
+                                                    required
+                                                    isInvalid={validated && !selectedPlot}>
+                                                    <option value="" >Wybierz z listy...</option>
+                                                    {plots.map(plotArea => (
+                                                        <option key={plotArea.plotId} value={plotArea.plotId}>{plotArea.plotNumber} {plotArea.area}ha</option>
 
-                                    ))}
-                                </Form.Control>
-                            </Col>
+                                                    ))}
+                                                </Form.Control>
+                                            </Col>
                       
-                           </Form.Group>
+                                           </Form.Group>
                     
-                        <Form.Group as={Row} className="mb-4" controlId="plotSelect">
-                            <Form.Label column sm={3}>Wybierz roœlinê</Form.Label>
-                            <Col sm={9}>
-                                <Form.Control as="select"
-                                    value={selectedPlant ? selectedPlant : ''}
-                                    onChange={handlePlantChange}
-                                    required
-                                    isInvalid={validated && !selectedPlant}>
-                                    <option value="" >Wybierz z listy...</option>
-                                    {plants.map(plant => (
-                                        <option key={plant.plantId} value={plant.plantId}>{plant.name}</option>
+                                        <Form.Group as={Row} className="mb-4" controlId="plant">
+                                            <Form.Label column sm={3}>Wybierz roÅ›linÄ™</Form.Label>
+                                            <Col sm={9}>
+                                                <Form.Control as="select"
+                                                    value={selectedPlant ? selectedPlant : ''}
+                                                    onChange={handlePlantChange}
+                                                    name="plant"
+                                                    required
+                                                    isInvalid={validated && !selectedPlant}>
+                                                    <option value="" >Wybierz z listy...</option>
+                                                    {plants.map(plant => (
+                                                        <option key={plant.plantId} value={plant.plantId}>{plant.name}</option>
 
-                                    ))}
-                                </Form.Control>
-                            </Col>
-                        </Form.Group>
+                                                    ))}
+                                                </Form.Control>
+                                            </Col>
+                                        </Form.Group>
                         
-                        {(selectedPlant && selectedPlot) &&
-                            (
-                                <Form.Group as={Row} className="mb-4" controlId="plotSelect">
-                                    <Form.Label column sm={3}>Wybierz œrodek chemiczny</Form.Label>
-                                    <Col sm={9}>
-                                        <Form.Control as="select"
-                                            value={selectedChemUse ? selectedChemUse : ''}
-                                            onChange={handleChemUseChange}
-                                            required
-                                            isInvalid={validated && !selectedChemUse}>
-                                            <option value="" >Wybierz z listy...</option>
-                                            {chemUse.map(chem => (
-                                                <option key={chem.chemUseId} value={chem.chemUseId}>{chem.chemAgentName}</option>
+                                        {(selectedPlant && selectedPlot) &&
+                                            (
+                                                <Form.Group as={Row} className="mb-4" controlId="chemAgent">
+                                                    <Form.Label column sm={3}>Wybierz Å›rodek chemiczny</Form.Label>
+                                                    <Col sm={9}>
+                                                    <Form.Control as="select"
+                                                        value={selectedChemUse ? selectedChemUse.chemUseId : ''}
+                                                            onChange={handleChemUseChange}
+                                                            required
+                                                            isInvalid={validated && !selectedChemUse}>
+                                                            <option value="" >Wybierz z listy...</option>
+                                                            {chemUse.map(chem => (
+                                                                <option key={chem.chemUseId} value={chem.chemUseId}>{chem.chemAgentName}</option>
 
-                                            ))}
-                                        </Form.Control>
-                                    </Col>
-                                </Form.Group>
-                             )
-                            }
+                                                            ))}
+                                                        </Form.Control>
+                                                    </Col>
+                                                </Form.Group>
+                                             )
+                                        }
+
+                                        {(selectedChemUse ) &&
+                                            (
+                                                <Form.Group as={Row} className="mb-4" controlId="dose">
+                                                <Form.Label column sm={3}>Wybierz iloÅ›Ä‡ Å›rodka z przedziaÅ‚u {selectedChemUse.minDose}l - {selectedChemUse.maxDose}l</Form.Label>
+                                                    <Col sm={9}>
+                                                    <Form.Control
+                                                        type="number"
+                                                            value={dose}
+                                                        required
+                                                        name="dose" onChange={(e) => setDose(e.target.value)}
+                                                        isInvalid={validated && (dose > selectedChemUse.maxDose || dose < selectedChemUse.minDose)}
+                                                        min={selectedChemUse.minDose}
+                                                        max={selectedChemUse.maxDose}
+                                                        step="0.10"
+                                                       >
+                                                    </Form.Control>
+                                                    <Form.Control.Feedback type="invalid">
+                                                        Wybrana dawka Å›rodka musi byc mniejsza od maksymalnej dawki i wiÄ™ksza od mninimalnej dawki dla tego Å›rodka.
+                                                    </Form.Control.Feedback>
+                                                    </Col>
+                                                </Form.Group>
+                                            )
+                                        }
+                                        {(selectedChemUse) &&
+                                            (
+                                                <Form.Group as={Row} className="mb-4" controlId="water">
+                                                    <Form.Label column sm={3}>Wybierz iloÅ›Ä‡ wody z przedziaÅ‚u {selectedChemUse.minWater}l - {selectedChemUse.maxWater}l</Form.Label>
+                                                    <Col sm={9}>
+                                                        <Form.Control
+                                                            type="number"
+                                                            value={water}
+                                                        required
+                                                        name="water"
+                                                        onChange={(e) => setWater(e.target.value)}
+                                                            isInvalid={validated && (water > selectedChemUse.maxWater || water < selectedChemUse.minWater)}
+                                                            min={selectedChemUse.minWater}
+                                                            max={selectedChemUse.maxWater}
+                                                            step="0.10"
+                                                        >
+                                                        </Form.Control>
+                                                        <Form.Control.Feedback type="invalid">
+                                                            Wybrana dawka wody musi byc mniejsza od maksymalnej dawki wody i wiÄ™ksza od mninimalnej dawki wody dla tego Å›rodka.
+                                                        </Form.Control.Feedback>
+                                                    </Col>
+                                                </Form.Group>
+                                            )
+                                        }
                         
-                        <Form.Group as={Row} className="mb-3" >
-                            <Button className={classes.savePlotButton} type="submit">ZAPISZ</Button>
+                                        <Form.Group as={Row} className="mb-3" >
+                                            <Button className={classes.savePlotButton} type="submit">PRZELICZ</Button>
                             
-                        </Form.Group>
-                    </Form>                   
+                                        </Form.Group>
+                                    </Form>
+                                </Card.Text>
+
+                            </Card.Body>
+                        </Card>
+                    
+                    </div>
+                        <div class="col-4" >
+                            <Card className="text-center" style={{ fontSize: "20px", minHeight: "100px", margin: 'auto', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', overflow: 'hidden', backgroundColor: calculatedDose ? "#bdeefd" : "white" }}>
+                            <Card.Title style={{ fontSize: "25px", float: "center", paddingTop: "3%" }}><b>Wynik</b></Card.Title>
+                            <Card.Body style={{ borderRadius: '10px' }}>
+                                <Card.Text className={classes.cardText}>
+                                    {calculatedDose && calculatedWater
+                                            ?
+                                                <>
+                                                    <p> Dla wprowadzonych danych naleÅ¼y uÅ¼yÄ‡:</p>
+                                                <p> <ScienceIcon style={{ fontSize: 35, color: "green" }} /> <b>{calculatedDose}l</b> Å›rodka {selectedChemUse.chemAgentName}</p>
+                                                <p><OpacityIcon style={{ fontSize: 35, color: "blue" }} /> <b>{calculatedWater}l</b> wody </p>
+                                                       
+                                                </>
+                                        :<p> Wynik uzyskasz po wprowadzeniu i zatwierdzeniu wszystkich danych.</p>
+                                        }
+                                    
+                                </Card.Text>
+
+                            </Card.Body>
+                        </Card>
+                        </div>
+                    </div>
                 </div>                                         
             </div>
         </>

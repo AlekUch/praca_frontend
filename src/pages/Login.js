@@ -136,6 +136,8 @@ function Login() {
 
                         <Card.Text>
                             Nie masz konta? <Link to="/registration">Zarejestruj się</Link>
+                            <br></br>
+                            Nie pamiętasz hasła? <Link to="/forgot-password">Resetuj hasło</Link>
                         </Card.Text>
                     </Card.Body>
                     <Button type="submit">ZALOGUJ</Button>
