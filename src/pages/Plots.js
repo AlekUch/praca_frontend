@@ -10,7 +10,7 @@ import Swal from 'sweetalert2';
 import {  useLoaderData, json, useSubmit, useActionData, useRevalidator } from 'react-router-dom';
 import UniversalTable from '../components/Table';
 import useActionEffect from '../hooks/useActionEffect';
-import archiveHandler from '../components/ArchiveHandler';
+import archiveHandler from '../utils/ArchiveHandler';
 
 
 function Plots() {
@@ -118,6 +118,7 @@ function Plots() {
                             onArchive={handleArchive} // Funkcja obsługująca archiwizację
                             auth="true"
                             archivalField="archival" // Nazwa pola archiwizacji (dynamiczne)
+                            title="Działki"
                         />
                      
                     </div>

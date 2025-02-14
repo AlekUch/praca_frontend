@@ -6,8 +6,8 @@ import { useState, useEffect } from 'react';
 import { useLoaderData, json, useSubmit, useActionData, useRevalidator, useParams } from 'react-router-dom';
 import UniversalTable from '../components/Table';
 import useActionEffect from '../hooks/useActionEffect';
-import archiveHandler from '../components/ArchiveHandler';
-import { isAdmin } from '../components/authUtil';
+import archiveHandler from '../utils/ArchiveHandler';
+import { isAdmin } from '../utils/authUtil';
 
 const ChemicalAgentDetails = () => {
     const [show, setShow] = useState(false);
@@ -39,6 +39,7 @@ const ChemicalAgentDetails = () => {
                 maxWater: item.maxWater,
                 minDays: item.minDays,
                 maxDays: item.maxDays,
+                numberOfTreatments: item.numberOfTreatments,
                 originalData: item, 
             }));
 
@@ -58,6 +59,7 @@ const ChemicalAgentDetails = () => {
         { field: "maxWater", headerName: "Woda max[l]", minWidth: 120, headerAlign: 'center' },
         { field: "minDays", headerName: "Ponownie min[dni]", minWidth: 140, headerAlign: 'center' },
         { field: "maxDays", headerName: "Ponownie max[l]", minWidth: 140, headerAlign: 'center' },
+        { field: "numberOfTreatments", headerName: "Ilość zabiegów", minWidth: 120, headerAlign: 'center' }
     ];
   
     const handleShow = () => setShow(true);
@@ -113,10 +115,9 @@ const ChemicalAgentDetails = () => {
 
     return (
        <>       
-            <div class="pb-5 " style={{ width: "100%" }}>
-                <div className={classes.container}>                
+  
                 <div class="row">
-                    <div class="col-12 ">
+                    <div className={classes.container}>                
                         <div class="image-flip" >
                             <div class="mainflip flip-0">
                                     <div class="frontside">
@@ -147,10 +148,10 @@ const ChemicalAgentDetails = () => {
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    </div>
-                <div className="row text-center mt-5" style={{ width: "100%" }}>
+                        </div>                 
+                </div>
+
+                <div className="row text-center mt-5" style={{ width: "1800px" }}>
                     
                         <p className="display-6 mb-5">Szczegółowe informacje </p>
                         <UniversalTable
@@ -165,7 +166,7 @@ const ChemicalAgentDetails = () => {
                         />
                     </div>
                
-            </div>
+         
             <Modal show={show} onHide={handleClose} className={classes.modal} >
                 <Modal.Header closeButton >
                     <Modal.Title className={classes.modalTitle}>
@@ -285,6 +286,20 @@ const ChemicalAgentDetails = () => {
                             </Col>
                         </Form.Group>
 
+                        <Form.Group as={Row} className="mb-4" controlId="numberOfTreatments">
+                            <Form.Label column sm={6}>Ilość zabiegów</Form.Label>
+                            <Col sm={6}>
+                                <Form.Control
+                                    type="number"
+                                    name="numberOfTreatments"
+                                    step="1"
+                                    min="1"
+                                    max="10"
+                                    defaultValue={editMode && selectedChemUse ? selectedChemUse.numberOfTreatments : ''}
+                                />
+                            </Col>
+                        </Form.Group>
+
                         <Form.Group as={Row} className="mb-3" >
                             <Button className={classes.savePlotButton} type="submit">ZAPISZ</Button>
                             <Button variant="secondary" onClick={handleClose} className={classes.modalFooterButton}>
@@ -326,7 +341,7 @@ export async function loader({ params }) {
             chemicaluseResponse.json(),
             detailsResponse.json()
         ]);
-
+        console.log(chemicalUses);
         return { plants, chemicalUses, isError: false, message: "", name: details.name, type: details.type, description: details.description, photo: details.photo };
 
     } catch (error) {

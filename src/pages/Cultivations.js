@@ -7,8 +7,8 @@ import { useLoaderData, json, useSubmit, useActionData, useRevalidator } from 'r
 import { format } from 'date-fns';
 import UniversalTable from '../components/Table';
 import useActionEffect from '../hooks/useActionEffect';
-import deleteHandler from '../components/DeleteHandler';
-import archiveHandler from '../components/ArchiveHandler';
+import deleteHandler from '../utils/DeleteHandler';
+import archiveHandler from '../utils/ArchiveHandler';
 
 function Cultivations() {
     const [show, setShow] = useState(false);

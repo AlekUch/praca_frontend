@@ -6,7 +6,7 @@
     justify-content: flex-start;
     align-items: flex-start;
 }
-/* Zawijanie tekstu w komórkach */
+
 .MuiDataGrid-cellContent {
     white-space: normal;
     word-wrap: break-word;

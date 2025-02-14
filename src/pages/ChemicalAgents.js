@@ -11,9 +11,9 @@ import UniversalTable from '../components/Table';
 import { Visibility } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
 import useActionEffect from '../hooks/useActionEffect';
-import archiveHandler from '../components/ArchiveHandler';
+import archiveHandler from '../utils/ArchiveHandler';
 import Swal from 'sweetalert2';
-import { isAdmin } from '../components/authUtil';
+import { isAdmin } from '../utils/authUtil';
 
 function ChemicalAgent() {
     const [show, setShow] = useState(false);

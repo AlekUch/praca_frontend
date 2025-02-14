@@ -17,6 +17,8 @@ import CalculatorPage, { loader as loaderCalculator } from './pages/Calculator.j
 import AccountActivationPage from './pages/AccountActivation.js';
 import ForgotPasswordPage from './pages/ForgotPassword.js';
 import ResetPasswordPage from './pages/ResetPassword.js';
+import NotificationPage, { loader as loaderNotifications } from './pages/NotificationPage';
+import UsersPage, { loader as loaderUsers, action as actionUsers } from './pages/Users';
 
 const router = createBrowserRouter([
     {
@@ -104,43 +106,21 @@ const router = createBrowserRouter([
                 path: "reset-password/:token",
                 element: <ResetPasswordPage />
             },
-            //    children: [
-            //        {
-            //            index: true,
-            //            element: <EventsPage />,
-            //            loader: eventsLoader,
-            //        },
-            //        {
-            //            path: ':eventId',
-            //            id: 'event-detail',
-            //            loader: eventDetailLoader,
-            //            children: [
-            //                {
-            //                    index: true,
-            //                    element: <EventDetailPage />,
-            //                    action: deleteEventAction,
-            //                },
-            //                {
-            //                    path: 'edit',
-            //                    element: <EditEventPage />,
-            //                    action: manipulateEventAction,
-            //                },
-            //            ],
-            //        },
-            //        {
-            //            path: 'new',
-            //            element: <NewEventPage />,
-            //            action: manipulateEventAction,
-            //        },
-            //    ],
-            //},
-            //{
-            //    path: 'newsletter',
-            //    element: <NewsletterPage />,
-            //    action: newsletterAction,
-            //},
+            {
+                path: "notifications",
+                element: <NotificationPage />,
+                loader: loaderNotifications
+            },
+            {
+                path: "users",
+                element: <UsersPage />,
+                loader: loaderUsers,
+                action: actionUsers
+            },
         ],
+
     },
+    
 ]);
 
 function App() {

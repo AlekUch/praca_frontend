@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import {  useLoaderData, json, useSubmit, useActionData, useRevalidator } from 'react-router-dom';
 import UniversalTable from '../components/Table';
 import useActionEffect from '../hooks/useActionEffect';
-import deleteHandler from '../components/DeleteHandler';
+import deleteHandler from '../utils/DeleteHandler';
 
 const ChemicalTreatment = () => {
     const [show, setShow] = useState(false);

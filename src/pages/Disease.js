@@ -6,12 +6,12 @@ import Modal from 'react-bootstrap/Modal';
 import { useNavigate, useLoaderData, json, useSubmit, useActionData, useRevalidator } from 'react-router-dom';
 import {  DropdownButton } from 'react-bootstrap';
 import UniversalTable from '../components/Table';
-import deleteHandler from '../components/DeleteHandler';
+import deleteHandler from '../utils/DeleteHandler';
 import { Visibility } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
 import useActionEffect from '../hooks/useActionEffect';
 import Swal from 'sweetalert2';
-import { isAdmin } from '../components/authUtil';
+import { isAdmin } from '../utils/authUtil';
 
 function Disease() {
     const [show, setShow] = useState(false);

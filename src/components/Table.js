@@ -10,7 +10,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import 'jspdf/dist/jspdf.umd.min.js';
-import './DataGridStyles.css';
+import './Table.module.css';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
