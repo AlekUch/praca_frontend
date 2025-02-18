@@ -33,7 +33,7 @@ function Users() {
                 email: item.email,
                 firstName: item.firstName,
                 lastName: item.lastName,
-                emailConfirmed: item.emailConfirmed,
+                emailConfirmed: item.emailConfirmed ? 'Tak' : 'Nie',
                 originalData: item,
             }));
 

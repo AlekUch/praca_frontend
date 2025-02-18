@@ -116,12 +116,13 @@ function Calculator() {
                             <Card.Title style={{ fontSize: "25px", float: "center", paddingTop:"3%" }}><b>Wprowadź dane</b></Card.Title>
                             <Card.Body style={{ borderRadius: '10px' }}>
                                 <Card.Text className={classes.cardText}>
-                                    
-                                    <Form noValidate validated={validated} method='POST' onSubmit={handleSubmit}>
+
+                                        <Form noValidate validated={validated} method='POST' onSubmit={handleSubmit} style={{ fontSize:"20px" }}>
                                         <Form.Group as={Row} className="mb-4" controlId="area">
                                             <Form.Label column sm={3}>Wybierz działkę</Form.Label>
                                             <Col sm={9}>
-                                                <Form.Control as="select"
+                                                    <Form.Control as="select"
+                                                        style={{ fontSize: "20px" }}
                                                     value={selectedPlot ? selectedPlot.plotId : ''}
                                                     onChange={handleSelectChange}
                                                     required
@@ -139,7 +140,8 @@ function Calculator() {
                                         <Form.Group as={Row} className="mb-4" controlId="plant">
                                             <Form.Label column sm={3}>Wybierz roślinę</Form.Label>
                                             <Col sm={9}>
-                                                <Form.Control as="select"
+                                                    <Form.Control as="select"
+                                                        style={{ fontSize: "20px" }}
                                                     value={selectedPlant ? selectedPlant : ''}
                                                     onChange={handlePlantChange}
                                                     name="plant"
@@ -159,7 +161,8 @@ function Calculator() {
                                                 <Form.Group as={Row} className="mb-4" controlId="chemAgent">
                                                     <Form.Label column sm={3}>Wybierz środek chemiczny</Form.Label>
                                                     <Col sm={9}>
-                                                    <Form.Control as="select"
+                                                        <Form.Control as="select"
+                                                            style={{ fontSize: "20px" }}
                                                         value={selectedChemUse ? selectedChemUse.chemUseId : ''}
                                                             onChange={handleChemUseChange}
                                                             required
@@ -178,9 +181,10 @@ function Calculator() {
                                         {(selectedChemUse ) &&
                                             (
                                                 <Form.Group as={Row} className="mb-4" controlId="dose">
-                                                <Form.Label column sm={3}>Wybierz ilość środka z przedziału {selectedChemUse.minDose}l - {selectedChemUse.maxDose}l</Form.Label>
+                                                <Form.Label column sm={3}>Wybierz ilość środka ({selectedChemUse.minDose}l - {selectedChemUse.maxDose}l)</Form.Label>
                                                     <Col sm={9}>
-                                                    <Form.Control
+                                                        <Form.Control
+                                                            style={{ fontSize: "20px" }}
                                                         type="number"
                                                             value={dose}
                                                         required
@@ -201,9 +205,10 @@ function Calculator() {
                                         {(selectedChemUse) &&
                                             (
                                                 <Form.Group as={Row} className="mb-4" controlId="water">
-                                                    <Form.Label column sm={3}>Wybierz ilość wody z przedziału {selectedChemUse.minWater}l - {selectedChemUse.maxWater}l</Form.Label>
+                                                    <Form.Label column sm={3}>Wybierz ilość wody ({selectedChemUse.minWater}l - {selectedChemUse.maxWater}l)npm</Form.Label>
                                                     <Col sm={9}>
                                                         <Form.Control
+                                                            style={{ fontSize: "20px" }}
                                                             type="number"
                                                             value={water}
                                                         required

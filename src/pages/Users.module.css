@@ -1,28 +1,3 @@
-.containerTop {
-    max-width: 1000px;
-    min-height: 390px;
-    margin-top: 0%;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 10px;
-    padding-right: 10px;
-    background-image: url('../../public/rosliny.jpg');
-    background-size: 100% 100%; /* Dopasowanie szerokoœci i wysokoœci do kontenera */
-    background-position: center; /* Wyœrodkowanie obrazu */
-    background-repeat: no-repeat; /* Brak powtarzania obrazu */
-    border-radius: 20px; /* Zaokr¹glenie naro¿ników */
-    overflow: hidden; /* Ukrycie obrazu poza zaokr¹glonymi brzegami */
-}
-
-.containerTitle {
-    display: inline-block; /* Element inline-block, szerokoœæ dopasowuje siê do tekstu */
-    background-color: rgb(219, 222, 219,0.7); /* Kolor t³a */
-    padding: 10px;
-    border-radius: 20px; /* Zaokr¹glenie naro¿ników */
-    overflow: hidden; /* Ukrycie obrazu poza zaokr¹glonymi brzegami */
-    margin-top: 110px;
-}
-
 
 .savePlotButton {
     width: 100%;
@@ -35,7 +10,8 @@
     cursor: pointer; /* Zmieniony kursor */
     transition: background-color 0.3s ease;
     font-weight: 400;
-    margin-top: 5%;
+    margin-top: 3%;
+    margin-bottom: 0;
 }
 
     .savePlotButton:hover {
@@ -54,6 +30,7 @@
     width: 50%;
     margin: auto;
     border-radius: 1.5rem;
+    margin-top: 1%;
 }
 
 .modalTitle {
@@ -62,49 +39,95 @@
     margin: auto;
 }
 
+.containerTop {
+    min-height: 200px;
+    margin-top: 0%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: rgba(179, 195, 219, 0.4);
+    border-radius: 20px; /* Zaokr¹glenie naro¿ników */
+    overflow: hidden; /* Ukrycie obrazu poza zaokr¹glonymi brzegami */
+}
+
+.containerTitle {
+    display: inline-block; /* Element inline-block, szerokoœæ dopasowuje siê do tekstu */
+    padding: 10px;
+    border-radius: 20px; /* Zaokr¹glenie naro¿ników */
+    overflow: hidden; /* Ukrycie obrazu poza zaokr¹glonymi brzegami */
+    margin-top: 50px;
+}
+
 .container {
-    max-width: 1200px;
+    max-width: 1500px;
+    margin-top: 1%;
     margin-left: auto;
     margin-right: auto;
     padding-left: 10px;
     padding-right: 10px;
 }
 
-table {
-    border-collapse: separate; /* Aby border-radius dzia³a³ */
-    border-spacing: 0; /* Wy³¹cza odstêpy miêdzy komórkami */
-    border-radius: 10px; /* Okreœl wielkoœæ zaokr¹glenia */
-    overflow: hidden; /* Ukrywa elementy wystaj¹ce poza zaokr¹glenie */
-    font-size: 18px;
+
+.profilePicture {
+    position: relative;
+    width: 100%;
+    height: 300px; /* Okreœlenie wysokoœci kontenera */
+    overflow: visible; /* Zezwolenie na wychodzenie obrazu poza granice kontenera */
 }
 
-thead {
-    --bs-table-bg: #249bc4;
-    --bs-table-color: white;
-    font-size: 22px;
-    font-weight: 100;
-    letter-spacing: 0.01em;
-    font-family: Tahoma;
+.profileImg {
+    position: absolute; /* Ustawienie obrazu w taki sposób, aby móg³ wychodziæ poza granice */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Dopasowanie obrazu do kontenera */
+    transition: transform 0.3s ease-in-out; /* P³ynne powiêkszanie */
+    object-position: center; /* Obrazek bêdzie wyœrodkowany */
 }
 
-th {
-    font-weight: 400;
+/* Powiêkszenie obrazu */
+.profilePicture:hover .profileImg {
+    transform: scale(1.5); /* Powiêkszenie obrazu przy najechaniu */
 }
 
-tr {
-    max-height: 50px;
+/* Opcjonalnie - cieñ przy najechaniu */
+.profilePicture:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Cieñ dla efektu g³êbi */
 }
 
-tbody tr:hover {
-    --bs-table-bg: rgba(131, 207, 245, 0.3); /* Przyk³adowy kolor podœwietlenia (czerwony) */
-    transition: background-color 0.3s ease; /* P³ynne przejœcie */
-    font-weight: 500;
+.cardCustom {
+    position: relative; /* Umo¿liwia wychodzenie zawartoœci poza granice */
+    overflow: visible; /* Wa¿ne, aby obrazek móg³ wychodziæ poza kontener */
+    width: 40%;
+    margin: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-table-bordered {
-    border: 5px double orange !important;
+/* Powiêkszenie zdjêcia przy najechaniu */
+.cardTitle {
+    font-size: 30px;
 }
 
-thead tr:hover {
-    background-color: transparent; /* Upewnij siê, ¿e nie ma koloru podœwietlenia dla thead */
+.cardText {
+    width: 90%;
+    margin: auto;
+    text-align: justify;
+}
+
+.cardContainer {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap; /* Pozwala na zawijanie elementów */
+}
+
+
+
+@media (max-width: 768px) {
+    .cardCustom {
+        width: 100%; /* Karty zajmuj¹ pe³n¹ szerokoœæ na mniejszych ekranach */
+    }
 }
