@@ -42,7 +42,7 @@ function Login() {
             const formData = new FormData(form);
 
             try {
-                const response = await fetch('https://localhost:44311/agrochem/login', {
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/login`, {
                     method: 'POST',
                     headers: {
 
