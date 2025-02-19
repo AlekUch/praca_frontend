@@ -228,7 +228,7 @@ function Plots() {
 export default Plots;
 export async function loader() {
     const token = localStorage.getItem("token");
-    const response = await fetch(`https://localhost:44311/agrochem/plots?isArchive=true`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/plots?isArchive=true`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,  // Przekazujemy token w nagłówku
@@ -250,7 +250,7 @@ export async function action({request, params}) {
     const method = request.method;
    
     // URL bazowy
-    let url = 'https://localhost:44311/agrochem/plots';
+    let url = `${process.env.REACT_APP_API_URL}1/agrochem/plots`;
 
     // Jeśli to metoda PUT, dodaj ID użytkownika do URL
     if (method === 'PUT') {
@@ -278,7 +278,7 @@ export async function action({request, params}) {
 
 export async function archivePlot(plotId, isArchiving) {
     const token = localStorage.getItem("token");
-    const url = `https://localhost:44311/agrochem/plots/archive/${plotId}?archive=${isArchiving}`;
+    const url = `${process.env.REACT_APP_API_URL}/agrochem/plots/archive/${plotId}?archive=${isArchiving}`;
   
     try {
         const response = await fetch(url, {

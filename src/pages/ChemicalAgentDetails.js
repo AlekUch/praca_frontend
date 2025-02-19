@@ -325,9 +325,9 @@ export async function loader({ params }) {
     const { id } = params;
     try {
         const [detailsResponse,plantsResponse, chemicaluseResponse] = await Promise.all([
-            fetch(`https://localhost:44311/agrochem/chemicalagents/${id}`, { method: 'GET', headers }),
-            fetch(`https://localhost:44311/agrochem/plants`, { method: 'GET', headers }),
-            fetch(`https://localhost:44311/agrochem/chemicaluse/${id}`, { method: 'GET', headers }) // Drugi endpoint
+            fetch(`${process.env.REACT_APP_API_URL}/agrochem/chemicalagents/${id}`, { method: 'GET', headers }),
+            fetch(`${process.env.REACT_APP_API_URL}/agrochem/plants`, { method: 'GET', headers }),
+            fetch(`${process.env.REACT_APP_API_URL}/agrochem/chemicaluse/${id}`, { method: 'GET', headers }) // Drugi endpoint
         ]);
         if (!plantsResponse.ok || !chemicaluseResponse.ok || !detailsResponse.ok) {
             return {
@@ -360,7 +360,7 @@ export async function action({ request, params }) {
   
     const method = request.method;
 
-    let url = 'https://localhost:44311/agrochem/chemicaluse';
+    let url = `${process.env.REACT_APP_API_URL}/agrochem/chemicaluse`;
 
     if (method === 'PUT') {
         const id = formObject.id; 
@@ -385,7 +385,7 @@ export async function action({ request, params }) {
 }
 export async function archiveChemAgnet(chemAgenId, isArchiving) {
     const token = localStorage.getItem("token");
-    const url = `https://localhost:44311/agrochem/chemicaluse/archive/${chemAgenId}?archive=${isArchiving}`;
+    const url = `${process.env.REACT_APP_API_URL}/agrochem/chemicaluse/archive/${chemAgenId}?archive=${isArchiving}`;
     
     try {
         const response = await fetch(url, {

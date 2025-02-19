@@ -63,7 +63,7 @@ function Registration() {
             const formData = new FormData(form);
             
             try {
-                const response = await fetch('https://localhost:44311/agrochem/register', {
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/register`, {
                   method: 'POST',
                   headers: {
                     

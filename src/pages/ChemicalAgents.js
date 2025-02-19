@@ -77,7 +77,7 @@ function ChemicalAgent() {
             console.log("xd");
             const token = localStorage.getItem("token");
 
-            let url = 'https://localhost:44311/agrochem/chemicalagents';
+            let url = `${process.env.REACT_APP_API_URL}/agrochem/chemicalagents`;
             let method = "POST";
 
             if (editMode) {
@@ -296,7 +296,7 @@ export async function loader() {
     if (isAdmin()) {
         archive = "true";
     }
-    const response = await fetch(`https://localhost:44311/agrochem/chemicalagents?isArchive=${archive}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/chemicalagents?isArchive=${archive}`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,  
@@ -315,7 +315,7 @@ export async function action({ request, params }) {
     const data = await request.formData();
     const formObject = Object.fromEntries(data.entries());
     const method = request.method;
-    let url = 'https://localhost:44311/agrochem/chemicalagents';
+    let url = `${process.env.REACT_APP_API_URL}/agrochem/chemicalagents`;
 
     if (method === 'PUT') {
         const id = formObject.id; 
@@ -348,7 +348,7 @@ export async function action({ request, params }) {
 export async function archiveChemAgnet(chemAgenId, isArchiving) {
     const token = localStorage.getItem("token");
 
-    const url = `https://localhost:44311/agrochem/chemicalagents/archive/${chemAgenId}?archive=${isArchiving}`;
+    const url = `${process.env.REACT_APP_API_URL}/agrochem/chemicalagents/archive/${chemAgenId}?archive=${isArchiving}`;
    
     try {
         const response = await fetch(url, {

@@ -95,7 +95,7 @@ function Cultivations() {
     const fetchPlotsArea = async () => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`https://localhost:44311/agrochem/plots/plotsArea`, {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/plots/plotsArea`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,  // Przekazujemy token w nagłówku
@@ -340,9 +340,9 @@ export async function loader() {
     };
     try {
         const [cultivationsResponse, archivalCultivationsResponse, plantsResponse] = await Promise.all([
-            fetch(`https://localhost:44311/agrochem/cultivations?isArchive=false`, { method: 'GET', headers }),
-            fetch(`https://localhost:44311/agrochem/cultivations?isArchive=true`, { method: 'GET', headers }),
-            fetch(`https://localhost:44311/agrochem/plants`, {method: 'GET', headers})
+            fetch(`${process.env.REACT_APP_API_URL}/agrochem/cultivations?isArchive=false`, { method: 'GET', headers }),
+            fetch(`${process.env.REACT_APP_API_URL}/cultivations?isArchive=true`, { method: 'GET', headers }),
+            fetch(`${process.env.REACT_APP_API_URL}/agrochem/plants`, {method: 'GET', headers})
 
         ]);
         if (!cultivationsResponse.ok || !archivalCultivationsResponse.ok || !plantsResponse.ok) {
@@ -372,7 +372,7 @@ export async function action({ request, params }) {
     const data = await request.formData();
     const formObject = Object.fromEntries(data.entries());
     const method = request.method;
-    let url = 'https://localhost:44311/agrochem/cultivations';
+    let url = `${process.env.REACT_APP_API_URL}/agrochem/cultivations`;
 
     if (method === 'PUT') {
         const id = formObject.cultivationId; // Zakładamy, że ID jest w formularzu
@@ -400,7 +400,7 @@ export async function action({ request, params }) {
 
 export async function archiveCultivation(cultivationId, isArchiving) {
     const token = localStorage.getItem("token");
-    const url = `https://localhost:44311/agrochem/cultivations/archive/${cultivationId}?archive=${isArchiving}`;  
+    const url = `${process.env.REACT_APP_API_URL}/agrochem/cultivations/archive/${cultivationId}?archive=${isArchiving}`;  
     try {
         const response = await fetch(url, {
             method: 'PUT',
@@ -424,7 +424,7 @@ export async function archiveCultivation(cultivationId, isArchiving) {
 
 export async function deleteCultivation(cultivationId) {
     const token = localStorage.getItem("token");
-    const url = `https://localhost:44311/agrochem/cultivations/delete/${cultivationId}`;
+    const url = `${process.env.REACT_APP_API_URL}/agrochem/cultivations/delete/${cultivationId}`;
 
     try {
         const response = await fetch(url, {

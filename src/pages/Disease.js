@@ -44,7 +44,7 @@ function Disease() {
         const fetchPlants = async () => {
             try {
                 const token = localStorage.getItem("token");
-                const response = await fetch(`https://localhost:44311/agrochem/plants`, {
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/plants`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,  // Przekazujemy token w nagłówku
@@ -133,7 +133,7 @@ function Disease() {
             });
 
             const token = localStorage.getItem("token");
-            let url = 'https://localhost:44311/agrochem/disease';
+            let url = `${process.env.REACT_APP_API_URL}1/agrochem/disease`;
             let method = "POST";
 
             if (editMode) {
@@ -433,7 +433,7 @@ export default Disease;
 
 export async function loader() {
     const token = localStorage.getItem("token");
-    const response = await fetch(`https://localhost:44311/agrochem/disease`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/disease`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,  // Przekazujemy token w nagłówku
@@ -477,7 +477,7 @@ export async function action({ request, params }) {
    
     const method = request.method;
  
-    let url = 'https://localhost:44311/agrochem/disease';
+    let url = `${process.env.REACT_APP_API_URL}/agrochem/disease`;
 
     if (method === 'PUT') {
         const id = formObject.id; 
@@ -509,7 +509,7 @@ export async function action({ request, params }) {
 
 export async function deleteDisease(id) {
     const token = localStorage.getItem("token");
-    const url = `https://localhost:44311/agrochem/disease/delete/${id}`;
+    const url = `${process.env.REACT_APP_API_URL}/agrochem/disease/delete/${id}`;
     try {
         const response = await fetch(url, {
             method: 'DELETE',

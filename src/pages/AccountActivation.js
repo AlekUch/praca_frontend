@@ -11,7 +11,7 @@ export default function AccountActivation() {
         const activateAccount = async () => {
             try {
                 setActivationStatus('loading');
-                const response = await fetch(`https://localhost:44311/agrochem/activate-account/${token}`, {
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/activate-account/${token}`, {
                     method: 'POST',
                 });
 

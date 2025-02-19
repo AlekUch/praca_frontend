@@ -79,7 +79,7 @@ export default DiseaseDetails;
 export async function loader({params }) {
     const token = localStorage.getItem("token");
     const { id } = params;
-    const response = await fetch(`https://localhost:44311/agrochem/disease/${id}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/disease/${id}`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,  // Przekazujemy token w nagłówku

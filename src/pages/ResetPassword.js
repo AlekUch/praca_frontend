@@ -57,7 +57,7 @@ const ResetPassword = () => {
 
         } else {
             console.log(newPassword);
-            const response = await fetch("https://localhost:44311/agrochem/reset-password", {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/reset-password`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ token, newPassword })

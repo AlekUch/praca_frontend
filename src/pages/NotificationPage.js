@@ -27,7 +27,7 @@ const NotificationPage = () => {
     const handleRead = async(notificationId) => {
         try {
             const token = localStorage.getItem("token");          
-            const response = await fetch(`https://localhost:44311/agrochem/notifications/read/${notificationId}?isRead=true`, {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/notifications/read/${notificationId}?isRead=true`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -131,7 +131,7 @@ export default NotificationPage;
 export async function loader({ params }) {
     const token = localStorage.getItem("token");
 
-    const response = await fetch(`https://localhost:44311/agrochem/notifications`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/notifications`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`, 
@@ -149,7 +149,7 @@ export async function loader({ params }) {
 
 export async function markAsRead(notificationId, isArchiving) {
     const token = localStorage.getItem("token");
-    const url = `https://localhost:44311/agrochem/notifications/read/${notificationId}?isRead=${isArchiving}`;
+    const url = `${process.env.REACT_APP_API_URL}/agrochem/notifications/read/${notificationId}?isRead=${isArchiving}`;
 
     try {
         const response = await fetch(url, {
@@ -175,7 +175,7 @@ export async function markAsRead(notificationId, isArchiving) {
 
 export async function deleteNotification(id) {
     const token = localStorage.getItem("token");
-    const url = `https://localhost:44311/agrochem/notifications/delete/${id}`;
+    const url = `${process.env.REACT_APP_API_URL}/agrochem/notifications/delete/${id}`;
     try {
         const response = await fetch(url, {
             method: 'DELETE',

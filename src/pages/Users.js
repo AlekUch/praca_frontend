@@ -205,7 +205,7 @@ function Users() {
 export default Users;
 export async function loader() {
     const token = localStorage.getItem("token");
-    const response = await fetch(`https://localhost:44311/agrochem/users`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/users`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,  // Przekazujemy token w nagłówku
@@ -226,7 +226,7 @@ export async function action({ request, params }) {
     console.log(formObject);
     const method = request.method;
 
-    let url = 'https://localhost:44311/agrochem/user';
+    let url = `${process.env.REACT_APP_API_URL}/agrochem/user`;
 
     if (method === 'PUT') {
         const id = formObject.id; 
@@ -258,7 +258,7 @@ export async function action({ request, params }) {
 
 export async function archivePlant(plantId, isArchiving) {
     const token = localStorage.getItem("token");
-    const url = `https://localhost:44311/agrochem/plants/archive/${plantId}?archive=${isArchiving}`;
+    const url = `${process.env.REACT_APP_API_URL}/plants/archive/${plantId}?archive=${isArchiving}`;
 
     try {
         const response = await fetch(url, {

@@ -33,7 +33,7 @@ function Calculator() {
     const fetchChemAgents = async (plantId) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`https://localhost:44311/agrochem/chemicaluse/plant/${plantId}`, {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/chemicaluse/plant/${plantId}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,  // Przekazujemy token w nagłówku
@@ -275,8 +275,8 @@ export async function loader() {
     };
     try {
         const [plotsResponse,  plantsResponse] = await Promise.all([
-            fetch(`https://localhost:44311/agrochem/plots?isArchive=false`, { method: 'GET', headers }),
-            fetch(`https://localhost:44311/agrochem/plants`, { method: 'GET', headers })
+            fetch(`${process.env.REACT_APP_API_URL}/agrochem/plots?isArchive=false`, { method: 'GET', headers }),
+            fetch(`${process.env.REACT_APP_API_URL}/agrochem/plants`, { method: 'GET', headers })
         ]);
         if (!plotsResponse.ok || !plantsResponse.ok ) {
             return {

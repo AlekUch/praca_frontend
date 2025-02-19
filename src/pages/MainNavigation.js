@@ -16,7 +16,7 @@ function MainNavigation() {
     // Funkcja do sprawdzania statusu powiadomień
     const checkNotificationsStatus = async () => {
         const token = localStorage.getItem("token");
-        const response = await fetch('https://localhost:44311/agrochem/notifications/status',
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/notifications/status`,
             {
                 method: 'GET',
                 headers: {

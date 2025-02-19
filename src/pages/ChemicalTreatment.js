@@ -51,7 +51,7 @@ const ChemicalTreatment = () => {
                 try {
                     const token = localStorage.getItem("token");
                     let plantId = selectedCultivation.plantId ? selectedCultivation.plantId : selectedChemTreatment.plantId;
-                    const response = await fetch(`https://localhost:44311/agrochem/chemicaluse/plant/${plantId}`, {
+                    const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/chemicaluse/plant/${plantId}`, {
                         method: 'GET',
                         headers: {
                             'Authorization': `Bearer ${token}`,  
@@ -352,8 +352,8 @@ export async function loader() {
     };
     try {
         const [treatmentsResponse, cultivationsResponse] = await Promise.all([
-            fetch(`https://localhost:44311/agrochem/chemicaltreatment`, { method: 'GET', headers }),
-            fetch(`https://localhost:44311/agrochem/cultivations`, { method: 'GET', headers }),
+            fetch(`${process.env.REACT_APP_API_URL}/agrochem/chemicaltreatment`, { method: 'GET', headers }),
+            fetch(`${process.env.REACT_APP_API_URL}/agrochem/cultivations`, { method: 'GET', headers }),
            
         ]);
         if (!treatmentsResponse.ok || !cultivationsResponse.ok) {
@@ -385,7 +385,7 @@ export async function action({ request, params }) {
   
     const method = request.method;
     
-    let url = 'https://localhost:44311/agrochem/chemicaltreatment';
+    let url = `${process.env.REACT_APP_API_URL}/agrochem/chemicaltreatment`;
 
     // Jeśli to metoda PUT, dodaj ID użytkownika do URL
     if (method === 'PUT') {
@@ -417,7 +417,7 @@ export async function action({ request, params }) {
 }
 export async function deleteChemicalTreatment(id) {
     const token = localStorage.getItem("token");
-    const url = `https://localhost:44311/agrochem/chemicaltreatment/${id}`;
+    const url = `${process.env.REACT_APP_API_URL}/agrochem/chemicaltreatment/${id}`;
     try {
         const response = await fetch(url, {
             method: 'DELETE',
