@@ -132,7 +132,7 @@ function Disease() {
             });
 
             const token = localStorage.getItem("token");
-            let url = `${process.env.REACT_APP_API_URL}1/agrochem/disease`;
+            let url = `${process.env.REACT_APP_API_URL}/agrochem/disease`;
             let method = "POST";
 
             if (editMode) {
