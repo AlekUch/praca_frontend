@@ -477,7 +477,7 @@ export async function action({ request, params }) {
     const method = request.method;
  
     let url = `${process.env.REACT_APP_API_URL}/agrochem/disease`;
-
+    console.log(url);
     if (method === 'PUT') {
         const id = formObject.id; 
         url = `${url}/${id}`;
