@@ -1,5 +1,4 @@
 import classes from './DiseaseDetails.module.css';
-import React from "react";
 import {Card} from 'react-bootstrap';
 import { useLoaderData } from 'react-router-dom';
 

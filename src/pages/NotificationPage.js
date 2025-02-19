@@ -1,5 +1,5 @@
 import classes from './NotificationPage.module.css';
-import { React, useState } from "react";
+import {  useState } from "react";
 import { Card } from 'react-bootstrap';
 import { useLoaderData, useRevalidator } from 'react-router-dom';
 import Tooltip from "@mui/material/Tooltip";
