@@ -1,10 +1,5 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import Card from 'react-bootstrap/Card';
-import Col from 'react-bootstrap/Col';
-import Form from 'react-bootstrap/Form';
-import Row from 'react-bootstrap/Row';
-import Button from 'react-bootstrap/Button';
+import { Form, Row, Col, Button,  Card } from 'react-bootstrap';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { useParams, useNavigate } from 'react-router-dom';

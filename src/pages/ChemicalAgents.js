@@ -1,11 +1,7 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
+
 import classes from './ChemicalAgents.module.css';
 import { useState, useEffect } from 'react';
-import Button from 'react-bootstrap/Button';
-import Col from 'react-bootstrap/Col';
-import Form from 'react-bootstrap/Form';
-import Row from 'react-bootstrap/Row';
-import Modal from 'react-bootstrap/Modal';
+import { Form, Row, Col, Button, Modal } from 'react-bootstrap';
 import { useNavigate, useLoaderData, json, useSubmit, useActionData, useRevalidator } from 'react-router-dom';
 import UniversalTable from '../components/Table';
 import { Visibility } from "@mui/icons-material";

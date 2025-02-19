@@ -1,16 +1,13 @@
 import classes from './NotificationPage.module.css';
-import React from "react";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { React, useState } from "react";
 import { Card } from 'react-bootstrap';
-import { useLoaderData } from 'react-router-dom';
-import { useState } from "react";
+import { useLoaderData, useRevalidator } from 'react-router-dom';
 import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
 import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications';
 import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import DeleteIcon from '@mui/icons-material/Delete';
 import deleteHandler from '../utils/DeleteHandler';
-import { useRevalidator } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 const NotificationPage = () => {

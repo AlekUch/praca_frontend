@@ -1,15 +1,9 @@
 import { useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import Col from 'react-bootstrap/Col';
-import Form from 'react-bootstrap/Form';
-import Row from 'react-bootstrap/Row';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import Card from 'react-bootstrap/Card';
+import { Form, Row, Col, Button, Card } from 'react-bootstrap';
 import './Registration.module.css';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
-import { useNavigate } from 'react-router-dom';
 
 const MySwal = withReactContent(Swal);
 

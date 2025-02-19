@@ -1,10 +1,9 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
+
 import classes from './Disease.module.css';
 import { useState, useEffect, useRef } from 'react';
-import { Form, Row, Col, Button } from 'react-bootstrap';
+import { Form, Row, Col, Button, DropdownButton } from 'react-bootstrap';
 import Modal from 'react-bootstrap/Modal';
 import { useNavigate, useLoaderData, json, useSubmit, useActionData, useRevalidator } from 'react-router-dom';
-import {  DropdownButton } from 'react-bootstrap';
 import UniversalTable from '../components/Table';
 import deleteHandler from '../utils/DeleteHandler';
 import { Visibility } from "@mui/icons-material";

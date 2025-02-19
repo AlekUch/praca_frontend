@@ -1,8 +1,6 @@
 import classes from './ChemicalTreatment.module.css';
-import React from "react";
-import 'bootstrap/dist/css/bootstrap.min.css';
 import { Form, Row, Col, Button,  Modal} from 'react-bootstrap';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, React } from 'react';
 import {  useLoaderData, json, useSubmit, useActionData, useRevalidator } from 'react-router-dom';
 import UniversalTable from '../components/Table';
 import useActionEffect from '../hooks/useActionEffect';

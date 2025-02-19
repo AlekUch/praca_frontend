@@ -1,11 +1,7 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
+
 import classes from './Plants.module.css';
 import { useState, useEffect } from 'react';
-import Button from 'react-bootstrap/Button';
-import Col from 'react-bootstrap/Col';
-import Form from 'react-bootstrap/Form';
-import Row from 'react-bootstrap/Row';
-import Modal from 'react-bootstrap/Modal';
+import { Form, Row, Col, Button, Modal } from 'react-bootstrap';
 import Swal from 'sweetalert2';
 import { useLoaderData, json, useSubmit, useActionData, useRevalidator } from 'react-router-dom';
 import UniversalTable from '../components/Table';

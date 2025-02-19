@@ -1,10 +1,8 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
+
 import classes from './Calculator.module.css';
-import { useState, useEffect } from 'react';
-import { Form, Row, Col, Dropdown, Button, Card } from 'react-bootstrap';
-import Modal from 'react-bootstrap/Modal';
-import { useLoaderData, json, useSubmit, useActionData, useRevalidator } from 'react-router-dom';
-import { format } from 'date-fns';
+import { useState } from 'react';
+import { Form, Row, Col, Button, Card } from 'react-bootstrap';
+import { useLoaderData, useSubmit, useActionData, useRevalidator } from 'react-router-dom';
 import useActionEffect from '../hooks/useActionEffect';
 import ScienceIcon from "@mui/icons-material/Science";
 import OpacityIcon from "@mui/icons-material/Opacity";

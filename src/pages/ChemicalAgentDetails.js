@@ -1,6 +1,5 @@
 import classes from './ChemicalAgentDetails.module.css';
 import React from "react";
-import 'bootstrap/dist/css/bootstrap.min.css';
 import { Form, Row, Col, Dropdown, Button, Card,  Modal } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
 import { useLoaderData, json, useSubmit, useActionData, useRevalidator, useParams } from 'react-router-dom';

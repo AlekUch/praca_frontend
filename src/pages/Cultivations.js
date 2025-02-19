@@ -1,4 +1,4 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
+
 import classes from './Cultivations.module.css';
 import { useState, useEffect } from 'react';
 import { Form, Row, Col, Dropdown, Button} from 'react-bootstrap';
