@@ -341,7 +341,7 @@ export async function loader() {
     try {
         const [cultivationsResponse, archivalCultivationsResponse, plantsResponse] = await Promise.all([
             fetch(`${process.env.REACT_APP_API_URL}/agrochem/cultivations?isArchive=false`, { method: 'GET', headers }),
-            fetch(`${process.env.REACT_APP_API_URL}/cultivations?isArchive=true`, { method: 'GET', headers }),
+            fetch(`${process.env.REACT_APP_API_URL}/agrochem/cultivations?isArchive=true`, { method: 'GET', headers }),
             fetch(`${process.env.REACT_APP_API_URL}/agrochem/plants`, {method: 'GET', headers})
 
         ]);
