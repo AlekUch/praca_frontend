@@ -203,7 +203,11 @@ function Plants() {
 export default Plants;
 export async function loader() {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/plants`, {
+    var archive = "false";
+    if (isAdmin()) {
+        archive = "true";
+    }
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/plants?isArchive=${archive}`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,  // Przekazujemy token w nagłówku
