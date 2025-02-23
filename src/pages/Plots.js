@@ -245,7 +245,7 @@ export async function action({request, params}) {
 
     const method = request.method;
    
-    let url = `${process.env.REACT_APP_API_URL}1/agrochem/plots`;
+    let url = `${process.env.REACT_APP_API_URL}/agrochem/plots`;
 
     
     if (method === 'PUT') {
