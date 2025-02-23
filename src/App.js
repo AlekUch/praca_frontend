@@ -126,20 +126,20 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-    const [loading, setLoading] = useState(true);
-    useEffect(() => {
-        setTimeout(() => {
-            setLoading(false); 
-        }, 50);
-    }, []);
+    //const [loading, setLoading] = useState(true);
+    //useEffect(() => {
+    //    setTimeout(() => {
+    //        setLoading(false); 
+    //    }, 50);
+    //}, []);
 
-    if (loading) {
-        return (
-            <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
-                <Spinner animation="border" variant="primary" />
-            </div>
-        );
-    }
+    //if (loading) {
+    //    return (
+    //        <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+    //            <Spinner animation="border" variant="primary" />
+    //        </div>
+    //    );
+    //}
     return <RouterProvider router={router} />;
 }
 

@@ -107,7 +107,7 @@ function Calculator() {
                 </div>
                 <div className={classes.container}>
                 <div className="row">
-                    <div class="col-8" >
+                        <div class="col-12 col-sm-8">
                         <Card className="text-center" style={{ minHeight: "100px", margin: 'auto', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', overflow: 'hidden' }}>
                             <Card.Title style={{ fontSize: "25px", float: "center", paddingTop:"3%" }}><b>Wprowadź dane</b></Card.Title>
                             <Card.Body style={{ borderRadius: '10px' }}>
@@ -235,7 +235,7 @@ function Calculator() {
                         </Card>
                     
                     </div>
-                        <div class="col-4" >
+                        <div class="col-12 col-sm-4">
                             <Card className="text-center" style={{ fontSize: "20px", minHeight: "100px", margin: 'auto', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', overflow: 'hidden', backgroundColor: calculatedDose ? "#bdeefd" : "white" }}>
                             <Card.Title style={{ fontSize: "25px", float: "center", paddingTop: "3%" }}><b>Wynik</b></Card.Title>
                             <Card.Body style={{ borderRadius: '10px' }}>
