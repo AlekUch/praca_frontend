@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+ï»¿import { useEffect } from 'react';
 import Swal from 'sweetalert2';
 
 const useActionEffect = (actionData, revalidate, setShow) => {
@@ -17,7 +17,7 @@ const useActionEffect = (actionData, revalidate, setShow) => {
         } else {
             Swal.fire({
                 icon: 'error',
-                title: 'B³¹d',
+                title: 'BÅ‚Ä…d',
                 text: actionData.message,
             });
         }
