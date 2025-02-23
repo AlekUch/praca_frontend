@@ -36,7 +36,7 @@ function Plots() {
                 originalData: item,
             }));
 
-            setRows(mappedRows); // Ustawiamy dane w stanie
+            setRows(mappedRows); 
 
         }
     }, [data]);
@@ -110,10 +110,10 @@ function Plots() {
                             key={JSON.stringify(rows)}
                             columns={columns}
                             rows={rows}
-                            onEdit={handleEdit} // Funkcja obsługująca edycję
-                            onArchive={handleArchive} // Funkcja obsługująca archiwizację
+                            onEdit={handleEdit} 
+                            onArchive={handleArchive} 
                             auth="true"
-                            archivalField="archival" // Nazwa pola archiwizacji (dynamiczne)
+                            archivalField="archival" 
                             title="Działki"
                         />
                      
@@ -227,7 +227,7 @@ export async function loader() {
     const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/plots?isArchive=true`, {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${token}`,  // Przekazujemy token w nagłówku
+            'Authorization': `Bearer ${token}`, 
         }
     });
     if (!response.ok) {
@@ -245,12 +245,11 @@ export async function action({request, params}) {
 
     const method = request.method;
    
-    // URL bazowy
     let url = `${process.env.REACT_APP_API_URL}1/agrochem/plots`;
 
-    // Jeśli to metoda PUT, dodaj ID użytkownika do URL
+    
     if (method === 'PUT') {
-        const id = formObject.id; // Zakładamy, że ID jest w formularzu
+        const id = formObject.id; 
         url = `${url}/${id}`;
     }
    
@@ -296,5 +295,3 @@ export async function archivePlot(plotId, isArchiving) {
         return { status: 'error', message: 'Nie udało się przeprowadzić operacji działki.' };
     }
 }
-///respons ok, error message -> useActionData
-//

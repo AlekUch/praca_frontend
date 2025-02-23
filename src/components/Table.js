@@ -30,14 +30,14 @@ const Table = ({ columns,
         minWidth:  onEdit && onArchive && onDelete ? 170: 110 ,
         sortable: false,
         renderCell: (params) => {
-            const data = params.row.originalData; // Pobieramy oryginalny obiekt danych
+            const data = params.row.originalData; 
 
             if (archivalField === "brak") {
                 return (
                     <>
                         <Tooltip title="Edytuj">
                             <IconButton
-                                onClick={() => onEdit(data)} // Wywołujemy dynamiczną funkcję edycji
+                                onClick={() => onEdit(data)} 
                                 style={{ marginRight: "2px" }}
                             >
                                 <EditIcon color="primary" />
@@ -53,19 +53,19 @@ const Table = ({ columns,
                     <>
                         <Tooltip title="Edytuj">
                             <IconButton
-                                onClick={() => onEdit(data)} // Wywołujemy dynamiczną funkcję edycji
+                                onClick={() => onEdit(data)} 
                                 style={{ marginRight: "2px" }}
                             >
                                 <EditIcon color="primary" />
                             </IconButton>
                         </Tooltip>
                         <Tooltip title="Usuń">
-                            <IconButton onClick={() => onDelete(data)}> {/* Wywołujemy dynamiczną funkcję archiwizacji */}
+                            <IconButton onClick={() => onDelete(data)}> 
                                 <DeleteIcon  style={{ color: "red" }} />
                             </IconButton>
                         </Tooltip>
                     </>
-                ); // Jeśli pole archivalField nie istnieje, nic nie renderujemy
+                ); 
             }
 
             const isArchived = data[archivalField]; 
@@ -74,20 +74,20 @@ const Table = ({ columns,
                 <>
                     <Tooltip title="Edytuj">
                         <IconButton
-                            onClick={() => onEdit(data)} // Wywołujemy dynamiczną funkcję edycji
+                            onClick={() => onEdit(data)} 
                             style={{ marginRight: "2px" }}
                         >
                             <EditIcon color="primary" />
                         </IconButton>
                     </Tooltip>
                     <Tooltip title="Archiwizuj">
-                        <IconButton onClick={() => onArchive(data, true)}> {/* Wywołujemy dynamiczną funkcję archiwizacji */}
+                        <IconButton onClick={() => onArchive(data, true)}> 
                             <ArchiveIcon style={{ color: "red" }} />
                         </IconButton>
                     </Tooltip>
                     {onDelete &&
                         <Tooltip title="Usuń">
-                            <IconButton onClick={() => onDelete(data)}> {/* Wywołujemy dynamiczną funkcję archiwizacji */}
+                            <IconButton onClick={() => onDelete(data)}> 
                                 <DeleteIcon style={{ color: "red" }} />
                             </IconButton>
                         </Tooltip>
@@ -95,7 +95,7 @@ const Table = ({ columns,
                 </>
             ) : (
                 <Tooltip title="Cofnij archiwizację">
-                    <IconButton onClick={() => onArchive(data, false)}> {/* Wywołujemy dynamiczną funkcję cofnięcia archiwizacji */}
+                    <IconButton onClick={() => onArchive(data, false)}> 
                         <UndoIcon style={{ color: "green" }} />
                     </IconButton>
                 </Tooltip>
@@ -108,8 +108,6 @@ const Table = ({ columns,
     const [expandedRows, setExpandedRows] = useState({});
 
   
-
-    // Przetwarzamy kolumny, aby dodać renderowanie z rozwijaniem
     const toggleRowExpand = (rowId) => {
         setExpandedRows((prev) => ({
             ...prev,
@@ -117,7 +115,7 @@ const Table = ({ columns,
         }));
     };
 
-    // Przetwarzamy kolumny, aby dodać renderowanie komórek z rozwijaniem
+
     const processedColumns = columns.map((column, colIndex) => ({
         ...column,
         renderCell: (params) => {
@@ -127,7 +125,6 @@ const Table = ({ columns,
             const isFirstColumn = colIndex === 0;
             const isExpanded = expandedRows[params.id];
 
-            // Przyciski tylko w pierwszej kolumnie
             if (rowHasLongText && isFirstColumn) {
                 return (
                     <div
@@ -161,7 +158,6 @@ const Table = ({ columns,
                 );
             }
 
-            // Wszystkie inne kolumny w wierszu
             if (typeof params.value === "string" && params.value.length > 70) {
                 return (
                     <div
@@ -172,8 +168,8 @@ const Table = ({ columns,
                         }}
                     >
                         {isExpanded
-                            ? params.value // Rozwinięty tekst
-                            : `${params.value.substring(0, 70)}...`} {/* Obcięty tekst */}
+                            ? params.value 
+                            : `${params.value.substring(0, 70)}...`} 
                     </div>
                 );
             }
@@ -188,9 +184,8 @@ const Table = ({ columns,
         const query = event.target.value;
         setFilterText(query);
 
-        // Filtrowanie danych na podstawie tekstu
         if (query === '') {
-            setFilteredRows(rows); // Przywrócenie wszystkich wierszy, gdy pole wyszukiwania jest puste
+            setFilteredRows(rows); 
         } else {
             const filtered = rows.filter((row) => {
                 return Object.values(row).some(
@@ -198,10 +193,10 @@ const Table = ({ columns,
                         value
                             .toString()
                             .toLowerCase()
-                            .includes(query.toLowerCase()) // Sprawdzanie, czy wartość w wierszu pasuje do wyszukiwanego tekstu
+                            .includes(query.toLowerCase()) 
                 );
             });
-            setFilteredRows(filtered); // Ustawienie przefiltrowanych wierszy
+            setFilteredRows(filtered); 
         }
     };
 
@@ -225,7 +220,7 @@ const Table = ({ columns,
                         <thead>
                             <tr>
                                 ${columns
-                    .filter(col => col.headerName !== 'Szczegóły') // Usuwamy kolumnę "Szczegóły"
+                    .filter(col => col.headerName !== 'Szczegóły') 
                     .map(col => `<th>${col.headerName}</th>`)
                     .join('')}
                             </tr>
@@ -234,7 +229,7 @@ const Table = ({ columns,
                             ${filteredRows.map(row => `
                                 <tr>
                                     ${columns
-                            .filter(col => col.headerName !== 'Szczegóły') // Usuwamy kolumnę "Szczegóły"
+                            .filter(col => col.headerName !== 'Szczegóły') 
                             .map(col => {
                                 if (col.field === 'photo') {
                                     const photoSrc = row.photo?.props?.src || null;
@@ -284,7 +279,7 @@ const Table = ({ columns,
                     variant="contained"
                     color="primary"
                     onClick={handlePrint}
-                    style={{ marginLeft: '10px' }}// Przekazujemy tytuł, kolumny i dane
+                    style={{ marginLeft: '10px' }}
                 >
                     Drukuj/PDF
                 </Button>
@@ -299,13 +294,12 @@ const Table = ({ columns,
                 disableSelectionOnClick={true}
                 style={{ wordWrap: 'break-word', fontSize:'12px' }}
                 getRowHeight={(params) =>
-                    expandedRows[params.id] ? 'auto' : null // Dynamicznie ustawiamy wysokość wiersza
+                    expandedRows[params.id] ? 'auto' : null 
                 }
                 localeText={{
                     paginationRowsPerPage: 'Wierszy na stronę',
                     noRowsLabel: 'Brak wierszy',
                     noResultsOverlay: 'Brak wyników',
-                    // Możesz dodać inne tłumaczenia, np.
                     columnMenuSortAsc: 'Sortuj rosnąco',
                     columnMenuSortDesc: 'Sortuj malejąco',
                     columnMenuFilter: 'Filtruj',

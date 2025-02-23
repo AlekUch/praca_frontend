@@ -75,10 +75,10 @@ function Cultivations() {
     }, [archivalCultivations]);
 
     const columns = [
-        { field: 'plotNumber', headerName: 'Numer działki', flex: 1, headerAlign: 'center' },
-        { field: 'plantName', headerName: 'Uprawiana roślina', flex: 1, headerAlign: 'center' },
-        { field: 'area', headerName: 'Powierzchnia', flex: 1, headerAlign: 'center' },
-        { field: 'sowingDate', headerName: 'Data siewu', flex: 1, headerAlign: 'center' },       
+        { field: 'plotNumber', headerName: 'Numer działki', flex: 1, headerAlign: 'center', minWidth:200 },
+        { field: 'plantName', headerName: 'Uprawiana roślina', flex: 1, headerAlign: 'center', minWidth: 200 },
+        { field: 'area', headerName: 'Powierzchnia', flex: 1, headerAlign: 'center', minWidth: 200 },
+        { field: 'sowingDate', headerName: 'Data siewu', flex: 1, headerAlign: 'center', minWidth: 200 },       
     ];
 
     const handleSearchChange = (e) => {
@@ -98,7 +98,7 @@ function Cultivations() {
             const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/plots/plotsArea`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${token}`,  // Przekazujemy token w nagłówku
+                    'Authorization': `Bearer ${token}`,  
                 }
             });
             if (!response.ok) {
@@ -148,9 +148,9 @@ function Cultivations() {
 
     const handleSelectChange = (e) => {
         const plotId = e.target.value;
-        const plot = plotsArea.find(plot => plot.plotId.toString() === plotId); // Znajdź użytkownika po ID
-        setSelectedPlot(plotId); // Ustaw ID wybranego użytkownika
-        setMaxArea(plot ? plot.area : 0); // Ustaw maksymalny wiek
+        const plot = plotsArea.find(plot => plot.plotId.toString() === plotId); 
+        setSelectedPlot(plotId); 
+        setMaxArea(plot ? plot.area : 0); 
     };
 
     const handleInputChange = (e) => {
@@ -170,12 +170,12 @@ function Cultivations() {
     };
 
     const resetForm = () => {
-        setInputValue(''); // Resetowanie stanu formularza
+        setInputValue(''); 
         setValidated(false);
         setSelectedPlot(null);
         setSelectedPlant(null);
         setDateValue('');
-        setSearchTerm('');// Resetowanie walidacji
+        setSearchTerm('');
     };
 
     const handleClose = () => {
@@ -212,11 +212,11 @@ function Cultivations() {
                         key={JSON.stringify(rows)}
                         columns={columns}
                         rows={rows}
-                        onEdit={handleEdit} // Funkcja obsługująca edycję
-                        onArchive={handleArchive} // Funkcja obsługująca archiwizację
+                        onEdit={handleEdit} 
+                        onArchive={handleArchive} 
                         onDelete={handleDelete}
                         auth="true"
-                        archivalField="archival" // Nazwa pola archiwizacji (dynamiczne)
+                        archivalField="archival" 
                         title="Aktualne uprawy"
                     />
                 </div>
@@ -277,7 +277,6 @@ function Cultivations() {
                             <Form.Group as={Row} className="mb-4" controlId="productSelect">
                                 <Form.Label column sm={3}>Wybierz rośline</Form.Label>
                                 <Col sm={9}>
-                                    {/* Pole wyszukiwania */}
                                     <Form.Control
                                         type="text"
                                         placeholder="Wpisz, aby wyszukać..."
@@ -375,7 +374,7 @@ export async function action({ request, params }) {
     let url = `${process.env.REACT_APP_API_URL}/agrochem/cultivations`;
 
     if (method === 'PUT') {
-        const id = formObject.cultivationId; // Zakładamy, że ID jest w formularzu
+        const id = formObject.cultivationId; 
         url = `${url}/${id}`;
     }
  

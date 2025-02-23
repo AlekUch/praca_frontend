@@ -122,10 +122,10 @@ function Users() {
                         key={JSON.stringify(rows)}
                         columns={columns}
                         rows={rows}
-                        onEdit={handleEdit} // Funkcja obsługująca edycję
-                        onArchive={handleArchive} // Funkcja obsługująca archiwizację
+                        onEdit={handleEdit} 
+                        onArchive={handleArchive} 
                         auth={isAdmin()}
-                        archivalField="archival" // Nazwa pola archiwizacji (dynamiczne)
+                        archivalField="archival"
                     />
                 </div>
                 <Modal show={show} onHide={handleClose} size="md" className={classes.modal} >
@@ -204,7 +204,7 @@ export async function loader() {
     const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/users`, {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${token}`,  // Przekazujemy token w nagłówku
+            'Authorization': `Bearer ${token}`,  
         }
     });
     if (!response.ok) {
@@ -219,7 +219,6 @@ export async function action({ request, params }) {
     const token = localStorage.getItem("token");
     const data = await request.formData();
     const formObject = Object.fromEntries(data.entries());
-    console.log(formObject);
     const method = request.method;
 
     let url = `${process.env.REACT_APP_API_URL}/agrochem/user`;
@@ -247,7 +246,7 @@ export async function action({ request, params }) {
             return json({ status: 'success', message: result.message }, { status: 200 });
         }
     } catch (error) {
-        return json({ status: 'error', message: error.message }); // Wyświetl błąd
+        return json({ status: 'error', message: error.message }); 
 
     }
 }
@@ -276,5 +275,3 @@ export async function archivePlant(plantId, isArchiving) {
         return { status: 'error', message: 'Nie udało się przeprowadzić operacji dla tej rośliny.' };
     }
 }
-///respons ok, error message -> useActionData
-//

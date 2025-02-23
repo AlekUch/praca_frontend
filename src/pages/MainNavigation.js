@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation, useNavigation } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
@@ -7,52 +7,56 @@ import { useState, useEffect } from 'react';
 import classes from './MainNavigation.module.css';
 import { isAdmin } from '../utils/authUtil';
 import Notifications from '../components/Notifications';
+import LoadingSpinner from './LoadingSpinner.js';
 
 function MainNavigation() {
     const [user, setUser] = useState(null);
     const navigate = useNavigate();
-    const [hasNotifications, setHasNotifications] = useState(false);
+    const navigation = useNavigation();
 
-    // Funkcja do sprawdzania statusu powiadomień
+    const [hasNotifications, setHasNotifications] = useState(false);
+    const location = useLocation();
+
+ 
     const checkNotificationsStatus = async () => {
         const token = localStorage.getItem("token");
         const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/notifications/status`,
             {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${token}`,  // Przekazujemy token w nagłówku
+                    'Authorization': `Bearer ${token}`, 
                 }
             });
         if (response.ok) {
             const status = await response.json();
-            setHasNotifications(status); // Ustaw stan na podstawie odpowiedzi
+            setHasNotifications(status); 
         }
     };
 
     useEffect(() => {
-        checkNotificationsStatus(); // Sprawdź status powiadomień przy załadowaniu
+        checkNotificationsStatus(); 
     }, []);
 
     useEffect(() => {
-        const loggedInUser = localStorage.getItem('user'); // Możesz tu trzymać np. imię/nazwisko lub email
+        const loggedInUser = localStorage.getItem('user'); 
         
         if (loggedInUser) {
-            setUser(loggedInUser); // Ustaw użytkownika jeśli jest zalogowany
+            setUser(loggedInUser); 
            
         }
     }, []);
 
     const handleLogout = () => {
-        localStorage.removeItem('token'); // Usuń token JWT
-        localStorage.removeItem('user');  // Usuń informacje o użytkowniku
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');  
         localStorage.removeItem('role');
-        setUser(null); // Zresetuj stan użytkownika
-        navigate('/login'); // Przekierowanie do strony logowania
+        setUser(null); 
+        navigate('/login'); 
     };
 
     return (
         <>
-            {hasNotifications && <Notifications />}
+            {location.pathname !== "/notifications" &&hasNotifications && <Notifications />}
             <Navbar collapseOnSelect expand="lg"   className={classes.nav} >
                 <Container >
                 <Navbar.Brand href="/">AGROCHEM</Navbar.Brand>
@@ -107,7 +111,7 @@ function MainNavigation() {
             </Container>
             </Navbar>
             <main>
-                {navigate.state==='loading' && <p>Ładowanie strony...</p> }
+                {navigation.state === 'loading' && <LoadingSpinner /> }
                 <Outlet />
             </main>
         </>

@@ -49,7 +49,7 @@ function Login() {
                 if (response.ok) {
                     localStorage.setItem('token', result.token);
                     localStorage.setItem('user', result.user);
-                    const decodedToken = jwtDecode(result.token); // Dekoduj token
+                    const decodedToken = jwtDecode(result.token); 
                     const role = decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
                     localStorage.setItem('role', role);
                    
@@ -60,7 +60,7 @@ function Login() {
                         confirmButtonText: "OK"
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            window.location.href = "/"; // Użycie navigate do przekierowania
+                            window.location.href = "/"; 
                         }
 
                     });

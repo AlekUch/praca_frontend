@@ -33,20 +33,19 @@ function Disease() {
         reasons: "",
         prevention:"",
         file: null,
-        plantDisease: [], // Tablica na ID wybranych produktów
+        plantDisease: [], 
     });
     
     useActionEffect(actionData, revalidate, setShow);
     
     useEffect(() => {
-        // Pobierz listę produktów z backendu
         const fetchPlants = async () => {
             try {
                 const token = localStorage.getItem("token");
-                const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/plants`, {
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/plants?isArchive=true`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer ${token}`,  // Przekazujemy token w nagłówku
+                        'Authorization': `Bearer ${token}`,  
                     }
                 });
                 if (!response.ok) {
@@ -85,14 +84,14 @@ function Disease() {
                 originalData: item,
                 details: (
                     <IconButton
-                        onClick={() => navigate(`/disease/${item.diseaseId}`)} // Funkcja do kliknięcia
+                        onClick={() => navigate(`/disease/${item.diseaseId}`)} 
                         color="primary"
                     >
                         <Visibility />
                     </IconButton>)
             }));
            
-            setRows(mappedRows); // Ustawiamy dane w stanie
+            setRows(mappedRows); 
             
         }
     }, [data, navigate]);
@@ -173,7 +172,7 @@ function Disease() {
                 }
 
             } catch (error) {
-                return json({ status: 'error', message: error.message }); // Wyświetl błąd
+                return json({ status: 'error', message: error.message }); 
 
             }
         }
@@ -193,10 +192,10 @@ function Disease() {
         if (photo) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setPreview(reader.result);  // Ustawienie prewizualizacji wybranego obrazu
+                setPreview(reader.result);  
             };
             reader.readAsDataURL(photo);
-            setPhoto(photo);  // Ustawienie wybranego pliku
+            setPhoto(photo);  
         }
     };
 
@@ -204,8 +203,8 @@ function Disease() {
         setFormData((prev) => {
             const isSelected = prev.plantDisease.includes(plantId);
             const updatedSelectedPlants = isSelected
-                ? prev.plantDisease.filter((id) => id !== plantId) // Usuń produkt, jeśli jest już zaznaczony
-                : [...prev.plantDisease, plantId]; // Dodaj produkt, jeśli jest niezaznaczony
+                ? prev.plantDisease.filter((id) => id !== plantId) 
+                : [...prev.plantDisease, plantId]; 
 
             return { ...prev, plantDisease: updatedSelectedPlants };
         });
@@ -269,10 +268,10 @@ function Disease() {
                         key={JSON.stringify(rows)}
                         columns={columns}
                         rows={rows}
-                        onEdit={handleEdit} // Funkcja obsługująca edycję
-                        onDelete={handleDelete} // Funkcja obsługująca archiwizację
+                        onEdit={handleEdit} 
+                        onDelete={handleDelete} 
                         auth={isAdmin()}
-                        archivalField="archival" // Nazwa pola archiwizacji (dynamiczne)
+                        archivalField="archival" 
                         title="Choroby roślin"
                     />
                 </div>
@@ -435,7 +434,7 @@ export async function loader() {
     const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/disease`, {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${token}`,  // Przekazujemy token w nagłówku
+            'Authorization': `Bearer ${token}`,  
         }
     });
     if (!response.ok) {
@@ -459,14 +458,13 @@ export async function action({ request, params }) {
 
    
     data.forEach((value, key) => {
-        // Specjalna obsługa dla PlantDisease
         if (key === "PlantDisease") {
             if (!Array.isArray(formObject[key])) {
-                formObject[key] = []; // Inicjalizacja jako tablica
+                formObject[key] = []; 
             }
-            formObject[key].push(parseInt(value, 10)); // Dodanie liczby do tablicy
+            formObject[key].push(parseInt(value, 10)); 
         } else {
-            formObject[key] = value; // Pozostałe klucze bez zmian
+            formObject[key] = value; 
         }
     });
 
@@ -477,7 +475,6 @@ export async function action({ request, params }) {
     const method = request.method;
  
     let url = `${process.env.REACT_APP_API_URL}/agrochem/disease`;
-    console.log(url);
     if (method === 'PUT') {
         const id = formObject.id; 
         url = `${url}/${id}`;

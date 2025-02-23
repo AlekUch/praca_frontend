@@ -1,7 +1,7 @@
 import classes from './NotificationPage.module.css';
 import {  useState } from "react";
 import { Card } from 'react-bootstrap';
-import { useLoaderData, useRevalidator } from 'react-router-dom';
+import { useLoaderData, useRevalidator, useNavigate } from 'react-router-dom';
 import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
 import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications';
@@ -14,6 +14,7 @@ const NotificationPage = () => {
     const data = useLoaderData();
     const [notifications, setNotifications] = useState(data);
     const { revalidate } = useRevalidator();
+    const { navigate } = useNavigate();
     //if (data.isError) {
     //    return <p>Błąd: {data.message}</p>;
     //}
@@ -37,7 +38,7 @@ const NotificationPage = () => {
                     title: 'Sukces',
                     text: result.message,
                 }).then(() => {
-                    revalidate();
+                    navigate(0);
                 });
             } else {
                 Swal.fire('Błąd!', result.message, 'error');
@@ -86,7 +87,6 @@ const NotificationPage = () => {
                                                     </p>
                                                 </div>
 
-                                                {/* Przycisk edycji */}
                                                 <div className="col-2 col-sm-1 text-center d-flex align-items-center justify-content-center">
                                                     {!item.isRead &&
                                                         <Tooltip title="Odczytano"
@@ -168,7 +168,6 @@ export async function markAsRead(notificationId, isArchiving) {
         return { status: 'error', message: 'Nie udało się przeprowadzić operacji .' };
     }
 }
-///respons ok, error message -> useActionData
 
 export async function deleteNotification(id) {
     const token = localStorage.getItem("token");

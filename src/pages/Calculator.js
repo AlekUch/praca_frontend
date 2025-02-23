@@ -34,7 +34,7 @@ function Calculator() {
             const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/chemicaluse/plant/${plantId}`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${token}`,  // Przekazujemy token w nagłówku
+                    'Authorization': `Bearer ${token}`,  
                 }
             });
             if (!response.ok) {
@@ -43,10 +43,9 @@ function Calculator() {
             } else {
                 const result = await response.json();
                 setChemUse(result);
-                console.log(result);
             }
         } catch (error) {
-            console.error('Błąd pobierania działek:', error);
+            console.error('Błąd pobierania roślin:', error);
         }
     };
 
@@ -73,16 +72,15 @@ function Calculator() {
     const handleSelectChange = (e) => {
         setCalculatedDose(null);
         const plotId = e.target.value;
-        const plot = plots.find((plot) => plot.plotId === parseInt(plotId)); // Znajdź użytkownika po ID
-        console.log(plot);
-        setSelectedPlot(plot); // Ustaw ID wybranego użytkownika
+        const plot = plots.find((plot) => plot.plotId === parseInt(plotId)); 
+        setSelectedPlot(plot); 
         setArea(plot.area);
     };
 
     const handlePlantChange = async (e) => {
         setCalculatedDose(null);
         const plantId = e.target.value;
-        setSelectedPlant(plantId); // Ustaw ID wybranego użytkownika
+        setSelectedPlant(plantId); 
         await fetchChemAgents(plantId);
     };
 

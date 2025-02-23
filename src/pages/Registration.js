@@ -75,7 +75,7 @@ function Registration() {
                         confirmButtonText:"OK"
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            navigate('/'); // Użycie navigate do przekierowania
+                            navigate('/'); 
                         }
 
                     });

@@ -149,7 +149,7 @@ const ChemicalAgentDetails = () => {
                         </div>                 
                 </div>
 
-                <div className="row text-center mt-5" style={{ width: "1800px" }}>
+                <div className="row text-center mt-5" >
                     
                         <p className="display-6 mb-5">Szczegółowe informacje </p>
                         <UniversalTable
@@ -339,7 +339,6 @@ export async function loader({ params }) {
             chemicaluseResponse.json(),
             detailsResponse.json()
         ]);
-        console.log(chemicalUses);
         return { plants, chemicalUses, isError: false, message: "", name: details.name, type: details.type, description: details.description, photo: details.photo };
 
     } catch (error) {

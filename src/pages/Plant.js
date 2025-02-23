@@ -32,7 +32,7 @@ function Plants() {
                 originalData: item,
             }));
 
-            setRows(mappedRows); // Ustawiamy dane w stanie
+            setRows(mappedRows); 
 
         }
     }, [data]);
@@ -52,7 +52,6 @@ function Plants() {
         event.preventDefault();
         const form = event.currentTarget;
 
-        // Przeprowadzenie walidacji formularza
         if (form.checkValidity() === false) {
             event.stopPropagation();
             setValidated(true);
@@ -61,12 +60,9 @@ function Plants() {
            
 
             if (editMode) {
-                // Prześlij żądanie PUT
-
                 formData.append('id', selectedPlant.plantId); // Ustaw identyfikator użytkownika
                 submit(formData, { method: 'PUT' });
             } else {
-                // Prześlij żądanie POST
                 submit(formData, { method: 'POST' });
             }
             handleClose();
@@ -135,10 +131,10 @@ function Plants() {
                         key={JSON.stringify(rows)}
                         columns={columns}
                         rows={rows}
-                        onEdit={handleEdit} // Funkcja obsługująca edycję
-                        onArchive={handleArchive} // Funkcja obsługująca archiwizację
+                        onEdit={handleEdit} 
+                        onArchive={handleArchive} 
                         auth={isAdmin()}
-                        archivalField="archival" // Nazwa pola archiwizacji (dynamiczne)
+                        archivalField="archival" 
                     />
                 </div>
                 <Modal show={show} onHide={handleClose} size="md" className={classes.modal} >
@@ -210,7 +206,7 @@ export async function loader() {
     const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/plants?isArchive=${archive}`, {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${token}`,  // Przekazujemy token w nagłówku
+            'Authorization': `Bearer ${token}`,  
         }
     });
     if (!response.ok) {
@@ -228,12 +224,10 @@ export async function action({ request, params }) {
 
     const method = request.method;
    
-    // URL bazowy
     let url = `${process.env.REACT_APP_API_URL}/agrochem/plants`;
 
-    // Jeśli to metoda PUT, dodaj ID użytkownika do URL
     if (method === 'PUT') {
-        const id = formObject.id; // Zakładamy, że ID jest w formularzu
+        const id = formObject.id;
         url = `${url}/${id}`;
     }
   
@@ -255,7 +249,7 @@ export async function action({ request, params }) {
             return json({ status: 'success', message: result.message }, { status: 200 });
         }
     } catch (error) {
-        return json({ status: 'error', message: error.message }); // Wyświetl błąd
+        return json({ status: 'error', message: error.message }); 
          
     }
 }
@@ -284,5 +278,3 @@ export async function archivePlant(plantId, isArchiving) {
         return { status: 'error', message: 'Nie udało się przeprowadzić operacji dla tej rośliny.' };
     }
 }
-///respons ok, error message -> useActionData
-//

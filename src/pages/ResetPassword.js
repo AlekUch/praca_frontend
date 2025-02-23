@@ -51,7 +51,6 @@ const ResetPassword = () => {
             event.stopPropagation();
 
         } else {
-            console.log(newPassword);
             const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/reset-password`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

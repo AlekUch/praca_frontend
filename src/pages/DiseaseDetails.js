@@ -80,7 +80,7 @@ export async function loader({params }) {
     const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/disease/${id}`, {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${token}`,  // Przekazujemy token w nagłówku
+            'Authorization': `Bearer ${token}`, 
         }
     });
     if (!response.ok) {

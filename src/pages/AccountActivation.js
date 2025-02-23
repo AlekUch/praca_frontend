@@ -4,7 +4,7 @@ import classes from './AccountActivation.module.css';
 import Swal from 'sweetalert2';
 export default function AccountActivation() {
     const { token } = useParams();
-    const [activationStatus, setActivationStatus] = useState(null); // 'loading', 'success', 'error'
+    const [activationStatus, setActivationStatus] = useState(null); 
     const navigate = useNavigate();
 
     useEffect(() => {

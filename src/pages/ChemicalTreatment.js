@@ -37,7 +37,7 @@ const ChemicalTreatment = () => {
                 reason: item.reason,
                 originalData: item,
             }));
-            setRows(mappedRows); // Ustawiamy dane w stanie
+            setRows(mappedRows); 
         }
     }, [chemTreat]);
 
@@ -187,10 +187,10 @@ const ChemicalTreatment = () => {
                                     <Form.Control as="select"                                       
                                         value={
                                             selectedCultivation && selectedCultivation.cultivationId
-                                                ? selectedCultivation.cultivationId // Jeśli edytujesz i masz wybrany element
+                                                ? selectedCultivation.cultivationId 
                                                 : selectedCultivation
-                                                    ? selectedCultivation // Jeśli tylko wybrany element
-                                                    : '' // Jeśli nic
+                                                    ? selectedCultivation 
+                                                    : '' 
                                         }
                                         onChange={handelSelectCultivation}                          
                                         required
@@ -243,10 +243,10 @@ const ChemicalTreatment = () => {
                                     <Form.Control as="select"
                                         value={
                                             selectedChemAgent && selectedChemAgent.chemUseId
-                                                ? selectedChemAgent.chemUseId // Jeśli edytujesz i masz wybrany element
+                                                ? selectedChemAgent.chemUseId
                                                 : selectedChemUse
-                                                    ? selectedChemUse // Jeśli tylko wybrany element
-                                                    : '' // Jeśli nic
+                                                    ? selectedChemUse 
+                                                    : '' 
                                         }
                                         onChange={handleSelectChemAgent}
                                         required
@@ -385,9 +385,8 @@ export async function action({ request, params }) {
     
     let url = `${process.env.REACT_APP_API_URL}/agrochem/chemicaltreatment`;
 
-    // Jeśli to metoda PUT, dodaj ID użytkownika do URL
     if (method === 'PUT') {
-        const id = formObject.id; // Zakładamy, że ID jest w formularzu
+        const id = formObject.id; 
         url = `${url}/${id}`;
     }
     
@@ -409,7 +408,7 @@ export async function action({ request, params }) {
             return json({ status: 'success', message: result.message }, { status: 200 });
         }
     } catch (error) {
-        return json({ status: 'error', message: error.message }); // Wyświetl błąd
+        return json({ status: 'error', message: error.message }); 
 
     }
 }

@@ -70,7 +70,6 @@ function ChemicalAgent() {
             setValidated(true);
         } else {
             const formData = new FormData(form);
-            console.log("xd");
             const token = localStorage.getItem("token");
 
             let url = `${process.env.REACT_APP_API_URL}/agrochem/chemicalagents`;
@@ -79,7 +78,6 @@ function ChemicalAgent() {
             if (editMode) {
                 url = `${url}/${selectedChemAgent.chemAgentId}`;
                 method = "PUT";
-                console.log(selectedChemAgent.chemAgentId);
             }
 
             try {
@@ -134,7 +132,6 @@ function ChemicalAgent() {
         setEditMode(true);
         setSelectedChemAgent(chemAgent);
         setPreview(chemAgent.photo);
-        console.log(chemAgent);
         setShow(true);
     };
 
@@ -155,10 +152,10 @@ function ChemicalAgent() {
         if (photo) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setPreview(reader.result);  // Ustawienie prewizualizacji wybranego obrazu
+                setPreview(reader.result);  
             };
             reader.readAsDataURL(photo);
-            setPhoto(photo);  // Ustawienie wybranego pliku
+            setPhoto(photo); 
         }
     };
  
@@ -336,7 +333,7 @@ export async function action({ request, params }) {
             return json({ status: 'success', message: result.message }, { status: 200 });
         }
     } catch (error) {
-        return json({ status: 'error', message: error.message }); // Wyświetl błąd
+        return json({ status: 'error', message: error.message }); 
 
     }
 }

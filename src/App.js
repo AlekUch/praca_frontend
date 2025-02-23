@@ -19,12 +19,13 @@ import ForgotPasswordPage from './pages/ForgotPassword.js';
 import ResetPasswordPage from './pages/ResetPassword.js';
 import NotificationPage, { loader as loaderNotifications } from './pages/NotificationPage';
 import UsersPage, { loader as loaderUsers, action as actionUsers } from './pages/Users';
+import ErrorPage from './pages/ErrorPage';
 
 const router = createBrowserRouter([
     {
         path: '/',
         element: <MainNavigation />,
-        //errorElement: <ErrorPage />,
+        errorElement: <ErrorPage />,
         children: [
             //{ index: true, element: <HomePage /> },
             {

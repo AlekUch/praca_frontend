@@ -13,7 +13,6 @@ const ForgotPassword = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("aaa");
         const response = await fetch(`${process.env.REACT_APP_API_URL}/agrochem/reset-link`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
