@@ -1,7 +1,7 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-
+import { useState, useEffect } from 'react';
 import MainNavigation from './pages/MainNavigation';
 import RegistrationPage from './pages/Registration';
 import LoginPage from './pages/Login';
@@ -20,6 +20,7 @@ import ResetPasswordPage from './pages/ResetPassword.js';
 import NotificationPage, { loader as loaderNotifications } from './pages/NotificationPage';
 import UsersPage, { loader as loaderUsers, action as actionUsers } from './pages/Users';
 import ErrorPage from './pages/ErrorPage';
+import { Spinner } from 'react-bootstrap'; 
 
 const router = createBrowserRouter([
     {
@@ -125,6 +126,20 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
+    const [loading, setLoading] = useState(true);
+    useEffect(() => {
+        setTimeout(() => {
+            setLoading(false); 
+        }, 50);
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+                <Spinner animation="border" variant="primary" />
+            </div>
+        );
+    }
     return <RouterProvider router={router} />;
 }
 

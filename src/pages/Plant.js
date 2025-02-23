@@ -256,7 +256,7 @@ export async function action({ request, params }) {
 
 export async function archivePlant(plantId, isArchiving) {
     const token = localStorage.getItem("token");
-    const url = `${process.env.REACT_APP_API_URL}/plants/archive/${plantId}?archive=${isArchiving}`;
+    const url = `${process.env.REACT_APP_API_URL}/agrochem/plants/archive/${plantId}?archive=${isArchiving}`;
     
     try {
         const response = await fetch(url, {

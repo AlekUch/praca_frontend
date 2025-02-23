@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import classes from './MainNavigation.module.css';
 import { isAdmin } from '../utils/authUtil';
 import Notifications from '../components/Notifications';
-import LoadingSpinner from './LoadingSpinner.js';
+import { Spinner } from 'react-bootstrap'; 
 
 function MainNavigation() {
     const [user, setUser] = useState(null);
@@ -111,7 +111,7 @@ function MainNavigation() {
             </Container>
             </Navbar>
             <main>
-                {navigation.state === 'loading' && <LoadingSpinner /> }
+                {navigation.state === 'loading' && <Spinner /> }
                 <Outlet />
             </main>
         </>
