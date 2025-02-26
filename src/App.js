@@ -17,10 +17,10 @@ import CalculatorPage, { loader as loaderCalculator } from './pages/Calculator.j
 import AccountActivationPage from './pages/AccountActivation.js';
 import ForgotPasswordPage from './pages/ForgotPassword.js';
 import ResetPasswordPage from './pages/ResetPassword.js';
-import NotificationPage, { loader as loaderNotifications } from './pages/NotificationPage';
-import UsersPage, { loader as loaderUsers, action as actionUsers } from './pages/Users';
-import ErrorPage from './pages/ErrorPage';
-import { Spinner } from 'react-bootstrap'; 
+import NotificationPage, { loader as loaderNotifications } from './pages/NotificationPage.js';
+import UsersPage, { loader as loaderUsers, action as actionUsers } from './pages/Users.js';
+import StartPage from './pages/StartPage.js';
+
 
 const router = createBrowserRouter([
     {
@@ -28,7 +28,7 @@ const router = createBrowserRouter([
         element: <MainNavigation />,
         //errorElement: <ErrorPage />,
         children: [
-            //{ index: true, element: <HomePage /> },
+            { index: true, element: <StartPage /> },
             {
                 path: 'registration',
                 element: <RegistrationPage />,
@@ -126,21 +126,9 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-    //const [loading, setLoading] = useState(true);
-    //useEffect(() => {
-    //    setTimeout(() => {
-    //        setLoading(false); 
-    //    }, 50);
-    //}, []);
 
-    //if (loading) {
-    //    return (
-    //        <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
-    //            <Spinner animation="border" variant="primary" />
-    //        </div>
-    //    );
-    //}
     return <RouterProvider router={router} />;
+                
 }
 
 export default App;

@@ -14,7 +14,7 @@ const NotificationPage = () => {
     const data = useLoaderData();
     const [notifications, setNotifications] = useState(data);
     const { revalidate } = useRevalidator();
-    const { navigate } = useNavigate();
+    const  navigate  = useNavigate();
     //if (data.isError) {
     //    return <p>Błąd: {data.message}</p>;
     //}
@@ -38,7 +38,7 @@ const NotificationPage = () => {
                     title: 'Sukces',
                     text: result.message,
                 }).then(() => {
-                    navigate(0);
+                    window.location.reload();
                 });
             } else {
                 Swal.fire('Błąd!', result.message, 'error');

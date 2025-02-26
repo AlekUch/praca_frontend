@@ -1,0 +1,110 @@
+.containerTop {
+    max-width: 1000px;
+    min-height: 390px;
+    margin-top: 0%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-image: url('../../public/registrationimage.jpg');
+    background-size: 100% 100%; 
+    background-position: center;
+    background-repeat: no-repeat; 
+    border-radius: 20px;
+    overflow: hidden; 
+}
+
+.containerTitle {
+    display: inline-block;
+    background-color: rgb(219, 222, 219,0.7);
+    padding: 10px;
+    border-radius: 20px; 
+    overflow: hidden;
+    margin-top: 110px;
+}
+
+
+.savePlotButton {
+    width: 100%;
+    font-size: 1rem; 
+    padding: 0.35rem 1rem; 
+    border-radius: 1.5rem; 
+    background-color: #007bff;
+    color: white; 
+
+    cursor: pointer; 
+    transition: background-color 0.3s ease;
+    font-weight: 400;
+    margin-top: 5%;
+}
+
+    .savePlotButton:hover {
+        background-color: #0056b3; 
+    }
+
+.modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    text-align: center;
+}
+
+.modalFooterButton {
+    width: 50%;
+    margin: auto;
+    border-radius: 1.5rem;
+}
+
+.modalTitle {
+    text-align: center;
+    width: 100%;
+    margin: auto;
+}
+
+.container {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+table {
+    border-collapse: separate; 
+    border-spacing: 0; 
+    border-radius: 10px; 
+    overflow: hidden; 
+    font-size: 18px;
+}
+
+thead {
+    --bs-table-bg: #249bc4;
+    --bs-table-color: white;
+    font-size: 22px;
+    font-weight: 100;
+    letter-spacing: 0.01em;
+    font-family: Tahoma;
+}
+
+th {
+    font-weight: 400;
+}
+
+tr {
+    max-height: 50px;
+}
+
+tbody tr:hover {
+    --bs-table-bg: rgba(131, 207, 245, 0.3); 
+    transition: background-color 0.3s ease; 
+    font-weight: 500;
+}
+
+table-bordered {
+    border: 5px double orange !important;
+}
+
+thead tr:hover {
+    background-color: transparent; 
+}

@@ -7,6 +7,7 @@ import { useLoaderData, json, useSubmit, useActionData, useRevalidator } from 'r
 import UniversalTable from '../components/Table';
 import useActionEffect from '../hooks/useActionEffect';
 import { isAdmin } from '../utils/authUtil';
+import deleteHandler from '../utils/DeleteHandler';
 
 function Users() {
 
@@ -66,6 +67,9 @@ function Users() {
         }
     };
 
+    const handleDelete = (user) => {
+        deleteHandler(user.userId, deleteUser, revalidate);
+    }
 
     const handleEdit = (user) => {
         setSelectedUser(user);
@@ -77,35 +81,8 @@ function Users() {
         setShow(false);
     };
 
-    const handleArchive = (plant, isArchiving) => {
-        Swal.fire({
-            title: `Czy na pewno chcesz ${isArchiving ? 'zarchiwizować roślinę' : 'cofnąć archiwizację'}?`,
-            text: `${isArchiving ? 'Po archiwizacji ta roślina będzie niedostępna!' : ''}`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: `${isArchiving ? 'Zarchiwizuj!' : 'Cofnij archiwizację'}`,
-            cancelButtonText: 'Anuluj'
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-
-                const response = await archivePlant(plant.plantId, isArchiving);
-
-                if (response.status === 'success') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Sukces',
-                        text: response.message,
-                    }).then(() => {
-                        revalidate();
-                    });
-                } else {
-                    Swal.fire('Błąd!', response.message, 'error');
-                }
-            }
-        });
-    };
+   
+    
 
     return (
         <>
@@ -123,7 +100,7 @@ function Users() {
                         columns={columns}
                         rows={rows}
                         onEdit={handleEdit} 
-                        onArchive={handleArchive} 
+                        onDelete={handleDelete} 
                         auth={isAdmin()}
                         archivalField="archival"
                     />
@@ -251,13 +228,13 @@ export async function action({ request, params }) {
     }
 }
 
-export async function archivePlant(plantId, isArchiving) {
-    const token = localStorage.getItem("token");
-    const url = `${process.env.REACT_APP_API_URL}/plants/archive/${plantId}?archive=${isArchiving}`;
 
+export async function deleteUser(id) {
+    const token = localStorage.getItem("token");
+    const url = `${process.env.REACT_APP_API_URL}/agrochem/user/delete/${id}`;
     try {
         const response = await fetch(url, {
-            method: 'PUT',
+            method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`
@@ -269,9 +246,9 @@ export async function archivePlant(plantId, isArchiving) {
             return { status: 'success', message: result.message };
         } else {
             const errorData = await response.json();
-            return { status: 'error', message: errorData.message || 'Wystąpił błąd podczas archiwizacji.' };
+            return { status: 'error', message: errorData.message || 'Wystąpił błąd podczas usuwania.' };
         }
     } catch (error) {
-        return { status: 'error', message: 'Nie udało się przeprowadzić operacji dla tej rośliny.' };
+        return { status: 'error', message: 'Nie udało się usunąć.' };
     }
 }
