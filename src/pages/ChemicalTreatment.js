@@ -37,6 +37,7 @@ const ChemicalTreatment = () => {
                 reason: item.reason,
                 originalData: item,
             }));
+            
             setRows(mappedRows); 
         }
     }, [chemTreat]);

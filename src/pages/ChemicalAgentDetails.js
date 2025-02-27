@@ -40,9 +40,8 @@ const ChemicalAgentDetails = () => {
                 numberOfTreatments: item.numberOfTreatments,
                 originalData: item, 
             }));
-
             setRows(mappedRows); 
-
+            console.log(chemicalUses);
         }
     }, [chemicalUses]);
     if (isError) {
@@ -208,9 +207,9 @@ const ChemicalAgentDetails = () => {
                                 <Form.Control
                                     type="number"
                                     required name="minDose"
-                                    step="0.05"
-                                    min="0.05"
-                                    max="9999.99"
+                                    step="0.005"
+                                    min="0.005"
+                                    max="9999.999"
                                     defaultValue={editMode && selectedChemUse ? selectedChemUse.minDose : ''}
                                 />
                             </Col>
@@ -221,9 +220,9 @@ const ChemicalAgentDetails = () => {
                                 <Form.Control
                                     type="number"
                                     required name="maxDose"
-                                    step="0.05"
-                                    min="0.05"
-                                    max="9999.99"
+                                    step="0.005"
+                                    min="0.005"
+                                    max="9999.999"
                                     defaultValue={editMode && selectedChemUse ? selectedChemUse.maxDose : ''}
                                 />
                             </Col>
